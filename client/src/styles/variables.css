@@ -1,0 +1,57 @@
+/* StaffSync Enterprise Design Tokens - Phase 2 Specification */
+:root {
+  /* Brand & Neutral Palette */
+  --ss-color-primary: #0F2027;
+  --ss-color-primary-hover: #1A333E;
+  --ss-color-secondary: #2C5364;
+  --ss-color-accent: #00ADB5;
+  --ss-color-accent-hover: #008C93;
+  --ss-color-bg-app: #F8F9FA;
+  --ss-color-surface: #FFFFFF;
+  --ss-color-surface-alt: #F1F3F5;
+  --ss-color-border: #DEE2E6;
+  --ss-color-border-subtle: #E9ECEF;
+  --ss-color-text-main: #212529;
+  --ss-color-text-muted: #6C757D;
+  --ss-color-text-inverse: #FFFFFF;
+
+  /* Semantic Status Colors (WCAG 2.2 AA compliant contrast) */
+  --ss-color-success: #198754;
+  --ss-color-success-bg: #D1E7DD;
+  --ss-color-success-text: #0F5132;
+  --ss-color-warning: #B78103;
+  --ss-color-warning-bg: #FFF3CD;
+  --ss-color-warning-text: #664D03;
+  --ss-color-danger: #DC3545;
+  --ss-color-danger-bg: #F8D7DA;
+  --ss-color-danger-text: #842029;
+  --ss-color-info: #0D6EFD;
+  --ss-color-info-bg: #CFE2FF;
+  --ss-color-info-text: #084298;
+
+  /* Spacing Scale (8pt grid) */
+  --ss-space-1: 4px;
+  --ss-space-2: 8px;
+  --ss-space-3: 16px;
+  --ss-space-4: 24px;
+  --ss-space-5: 32px;
+  --ss-space-6: 48px;
+
+  /* Border Radii */
+  --ss-radius-sm: 4px;
+  --ss-radius-md: 8px;
+  --ss-radius-lg: 12px;
+  --ss-radius-pill: 9999px;
+
+  /* Box Shadows */
+  --ss-shadow-subtle: 0 1px 3px rgba(15, 32, 39, 0.06);
+  --ss-shadow-card: 0 2px 10px rgba(15, 32, 39, 0.08);
+  --ss-shadow-hover: 0 6px 18px rgba(15, 32, 39, 0.12);
+  --ss-shadow-overlay: 0 12px 30px rgba(15, 32, 39, 0.18);
+
+  /* Layout Shell Dimensions */
+  --ss-topbar-height: 64px;
+  --ss-sidebar-width-expanded: 260px;
+  --ss-sidebar-width-collapsed: 72px;
+}
+

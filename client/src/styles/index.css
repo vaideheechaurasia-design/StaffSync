@@ -1,0 +1,164 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import './variables.css';
+
+/* Global resets & typography */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--ss-color-text-main);
+  background-color: var(--ss-color-bg-app);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible Skip Navigation Link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 10px;
+  background: var(--ss-color-primary);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 9999;
+  text-decoration: none;
+  border-radius: var(--ss-radius-sm);
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 10px;
+}
+
+/* Universal high-contrast visible focus state (WCAG 2.2 AA) */
+:focus-visible {
+  outline: 2px solid var(--ss-color-accent) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(0, 173, 181, 0.25) !important;
+}
+
+/* Brand Button Overrides */
+.btn-primary {
+  background-color: var(--ss-color-primary);
+  border-color: var(--ss-color-primary);
+  color: var(--ss-color-text-inverse);
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: var(--ss-radius-md);
+  transition: all 0.2s ease;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background-color: var(--ss-color-primary-hover);
+  border-color: var(--ss-color-primary-hover);
+}
+
+.btn-accent {
+  background-color: var(--ss-color-accent);
+  border-color: var(--ss-color-accent);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--ss-radius-md);
+  transition: all 0.2s ease;
+}
+.btn-accent:hover, .btn-accent:focus {
+  background-color: var(--ss-color-accent-hover);
+  border-color: var(--ss-color-accent-hover);
+  color: #ffffff;
+}
+
+/* Elevated Enterprise Cards */
+.ss-card {
+  background-color: var(--ss-color-surface);
+  border: 1px solid var(--ss-color-border);
+  border-radius: var(--ss-radius-lg);
+  box-shadow: var(--ss-shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ss-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ss-shadow-hover);
+}
+
+/* Semantic Badges */
+.ss-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--ss-radius-pill);
+}
+.ss-badge-success {
+  background-color: var(--ss-color-success-bg);
+  color: var(--ss-color-success-text);
+  border: 1px solid #BADBCC;
+}
+.ss-badge-warning {
+  background-color: var(--ss-color-warning-bg);
+  color: var(--ss-color-warning-text);
+  border: 1px solid #FFECB5;
+}
+.ss-badge-danger {
+  background-color: var(--ss-color-danger-bg);
+  color: var(--ss-color-danger-text);
+  border: 1px solid #F5C2C7;
+}
+.ss-badge-info {
+  background-color: var(--ss-color-info-bg);
+  color: var(--ss-color-info-text);
+  border: 1px solid #B6D4FE;
+}
+
+/* Layout Shell Styles */
+.ss-topbar {
+  height: var(--ss-topbar-height);
+  background-color: var(--ss-color-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.ss-sidebar {
+  width: var(--ss-sidebar-width-expanded);
+  background-color: var(--ss-color-surface);
+  border-right: 1px solid var(--ss-color-border);
+  min-height: calc(100vh - var(--ss-topbar-height));
+  transition: width 0.2s ease;
+}
+
+.ss-sidebar.collapsed {
+  width: var(--ss-sidebar-width-collapsed);
+}
+
+.ss-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  color: var(--ss-color-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: var(--ss-radius-md);
+  margin: 2px 8px;
+  transition: all 0.15s ease;
+}
+.ss-nav-item:hover {
+  background-color: var(--ss-color-surface-alt);
+  color: var(--ss-color-primary);
+}
+.ss-nav-item.active {
+  background-color: rgba(0, 173, 181, 0.1);
+  color: var(--ss-color-primary);
+  border-left: 3px solid var(--ss-color-accent);
+  font-weight: 600;
+}
+
+/* Touch targets >= 44x44px on interactive controls */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
