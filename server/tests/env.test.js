@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { config, maskMongoUri, validateEnv } from '../src/config/env.js';
+import { config, maskMongoUri, validateEnv, validateJwtSecret } from '../src/config/env.js';
 
 test('StaffSync Configuration - Environment Module', async (t) => {
   await t.test('config object exposes required fields with valid defaults', () => {
@@ -10,6 +10,9 @@ test('StaffSync Configuration - Environment Module', async (t) => {
     assert.equal(typeof config.clientUrl, 'string');
     assert.equal(typeof config.mongoUri, 'string');
     assert.equal(config.mongoUri, config.mongodbUri, 'mongoUri and mongodbUri should be identical');
+    assert.equal(typeof config.jwtSecret, 'string');
+    assert.ok(config.jwtSecret.length >= 32, 'jwtSecret must be at least 32 characters');
+    assert.equal(config.jwtExpiresIn, '8h');
     assert.equal(typeof config.isProduction, 'boolean');
     assert.equal(typeof config.isDevelopment, 'boolean');
   });
@@ -35,5 +38,22 @@ test('StaffSync Configuration - Environment Module', async (t) => {
       validateEnv();
     });
   });
-});
 
+  await t.test('validateJwtSecret validates secret strength correctly', () => {
+    // Valid 32-char secret
+    const strongSecret = 'a'.repeat(32);
+    assert.equal(validateJwtSecret(strongSecret, true), true);
+
+    // Short secret in production fails
+    assert.throws(
+      () => validateJwtSecret('short-secret-123', true),
+      /at least 32 characters long in production/i
+    );
+
+    // Empty secret fails in all environments
+    assert.throws(
+      () => validateJwtSecret('', false),
+      /JWT_SECRET is required and cannot be empty/i
+    );
+  });
+});

@@ -1,15 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
-import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
+import LoadingSpinner from '../../components/common/LoadingSpinner.jsx';
+import leaveService from '../../api/leaveService.js';
 
 export const LeaveCenter = () => {
-  const LEAVE_REQUESTS = [
-    { type: 'Annual Leave', dates: 'Nov 10 – Nov 12, 2026', days: '3.0 days', reason: 'Family vacation', status: 'PENDING', reviewer: 'Marcus Brody' },
-    { type: 'Sick Leave', dates: 'Oct 14, 2026', days: '1.0 day', reason: 'Flu recovery', status: 'APPROVED', reviewer: 'Marcus Brody' },
-    { type: 'Casual Leave', dates: 'Sep 02, 2026', days: '1.0 day', reason: 'Personal appointment', status: 'APPROVED', reviewer: 'Marcus Brody' }
-  ];
+  const [requests, setRequests] = useState([]);
+  const [balance, setBalance] = useState({
+    annual: { quota: 15, used: 0 },
+    casual: { quota: 10, used: 0 },
+    sick: { quota: 10, used: 0 },
+    unpaid: { used: 0 }
+  });
+  const [statusFilter, setStatusFilter] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+
+  const fetchLeaves = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const params = {};
+      if (statusFilter) params.status = statusFilter;
+
+      const res = await leaveService.getMyLeaves(params);
+      if (res && res.data) {
+        setRequests(res.data);
+      }
+      if (res && res.balance) {
+        setBalance(res.balance);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to load leave records.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [statusFilter]);
+
+  useEffect(() => {
+    fetchLeaves();
+  }, [fetchLeaves]);
+
+  const handleCancel = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this pending leave request?')) {
+      return;
+    }
+
+    setActionLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+    try {
+      await leaveService.cancel(id);
+      setSuccessMsg('Leave application cancelled successfully.');
+      await fetchLeaves();
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || 'Failed to cancel leave request.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return isNaN(d.getTime())
+      ? '—'
+      : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
 
   return (
     <div>
@@ -24,39 +84,53 @@ export const LeaveCenter = () => {
         }
       />
 
-      <PlaceholderNotice
-        featureName="Leave Lifecycle & Approval Engine"
-        targetPhase="Phase 9 (Leave Requests & Approval Workflows)"
-        description="Displays approved quota balance cards, history tables, and application links. Quota deductions and manager approval workflows will activate in Phase 9."
-      />
+      {error && (
+        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+          {error}
+          <button type="button" className="btn-close" onClick={() => setError(null)} aria-label="Close" />
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="alert alert-success alert-dismissible fade show" role="alert">
+          {successMsg}
+          <button type="button" className="btn-close" onClick={() => setSuccessMsg(null)} aria-label="Close" />
+        </div>
+      )}
 
       {/* Quota Balance Cards */}
       <div className="row g-3 mb-4">
         <div className="col-6 col-md-3">
           <div className="ss-card p-3 text-center border-start border-4 border-primary">
             <span className="small text-muted d-block fw-semibold text-uppercase">Annual Leave</span>
-            <span className="fs-3 fw-bold text-primary">11</span>
-            <span className="small text-muted d-block">15 total allocated</span>
+            <span className="fs-3 fw-bold text-primary">
+              {(balance.annual?.quota || 15) - (balance.annual?.used || 0)}
+            </span>
+            <span className="small text-muted d-block">{balance.annual?.quota || 15} total allocated</span>
           </div>
         </div>
         <div className="col-6 col-md-3">
           <div className="ss-card p-3 text-center border-start border-4 border-success">
             <span className="small text-muted d-block fw-semibold text-uppercase">Casual Leave</span>
-            <span className="fs-3 fw-bold text-success">8</span>
-            <span className="small text-muted d-block">10 total allocated</span>
+            <span className="fs-3 fw-bold text-success">
+              {(balance.casual?.quota || 10) - (balance.casual?.used || 0)}
+            </span>
+            <span className="small text-muted d-block">{balance.casual?.quota || 10} total allocated</span>
           </div>
         </div>
         <div className="col-6 col-md-3">
           <div className="ss-card p-3 text-center border-start border-4 border-warning">
             <span className="small text-muted d-block fw-semibold text-uppercase">Sick Leave</span>
-            <span className="fs-3 fw-bold text-warning">9</span>
-            <span className="small text-muted d-block">10 total allocated</span>
+            <span className="fs-3 fw-bold text-warning">
+              {(balance.sick?.quota || 10) - (balance.sick?.used || 0)}
+            </span>
+            <span className="small text-muted d-block">{balance.sick?.quota || 10} total allocated</span>
           </div>
         </div>
         <div className="col-6 col-md-3">
           <div className="ss-card p-3 text-center border-start border-4 border-secondary">
             <span className="small text-muted d-block fw-semibold text-uppercase">Unpaid Leave</span>
-            <span className="fs-3 fw-bold text-secondary">0</span>
+            <span className="fs-3 fw-bold text-secondary">{balance.unpaid?.used || 0}</span>
             <span className="small text-muted d-block">Days consumed</span>
           </div>
         </div>
@@ -64,42 +138,104 @@ export const LeaveCenter = () => {
 
       {/* History Table */}
       <div className="ss-card p-0 overflow-hidden">
-        <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <div className="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
           <h2 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
             My Leave Request History
           </h2>
-          <span className="text-muted small">Year 2026</span>
+          <div className="d-flex align-items-center gap-2">
+            <label htmlFor="leaveStatusFilter" className="small text-muted mb-0">Status:</label>
+            <select
+              id="leaveStatusFilter"
+              className="form-select form-select-sm"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{ width: 'auto' }}
+            >
+              <option value="">All Statuses</option>
+              <option value="PENDING">Pending</option>
+              <option value="APPROVED">Approved</option>
+              <option value="REJECTED">Rejected</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
         </div>
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
-            <thead className="table-light">
-              <tr>
-                <th className="ps-3">Leave Type</th>
-                <th>Dates Requested</th>
-                <th>Duration</th>
-                <th>Reason</th>
-                <th>Reviewed By</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {LEAVE_REQUESTS.map((req, i) => (
-                <tr key={i}>
-                  <td className="ps-3 fw-semibold">{req.type}</td>
-                  <td>{req.dates}</td>
-                  <td>{req.days}</td>
-                  <td className="text-truncate" style={{ maxWidth: '200px' }}>{req.reason}</td>
-                  <td>{req.reviewer}</td>
-                  <td><StatusBadge status={req.status} /></td>
+
+        {isLoading ? (
+          <div className="p-5 text-center">
+            <LoadingSpinner label="Loading your leave applications..." size="md" />
+          </div>
+        ) : requests.length === 0 ? (
+          <div className="p-5 text-center text-muted">
+            <div className="fs-2 mb-2">🏖️</div>
+            <p className="mb-0">No leave applications found. Click "Apply for Leave" above to request time off.</p>
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
+              <thead className="table-light">
+                <tr>
+                  <th className="ps-3">Leave Type</th>
+                  <th>Dates Requested</th>
+                  <th>Duration</th>
+                  <th>Reason</th>
+                  <th>Reviewed By</th>
+                  <th>Status</th>
+                  <th className="text-end pe-3">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {requests.map((req) => (
+                  <tr key={req._id}>
+                    <td className="ps-3 fw-semibold">
+                      <span className="badge bg-light text-dark border me-1">{req.leaveType}</span>
+                    </td>
+                    <td>
+                      {formatDate(req.startDate)} – {formatDate(req.endDate)}
+                    </td>
+                    <td>
+                      <span className="font-monospace">{req.totalDays} day{req.totalDays > 1 ? 's' : ''}</span>
+                    </td>
+                    <td className="text-truncate" style={{ maxWidth: '220px' }} title={req.reason}>
+                      {req.reason}
+                    </td>
+                    <td>
+                      {req.reviewedBy ? (
+                        <div>
+                          <strong>{req.reviewedBy.name}</strong>
+                          {req.reviewComment && (
+                            <div className="small text-muted fst-italic" title={req.reviewComment}>
+                              "{req.reviewComment}"
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted small">Pending Review</span>
+                      )}
+                    </td>
+                    <td>
+                      <StatusBadge status={req.status} />
+                    </td>
+                    <td className="text-end pe-3">
+                      {req.status === 'PENDING' && (
+                        <button
+                          type="button"
+                          className="btn btn-outline-danger btn-sm py-0 px-2"
+                          onClick={() => handleCancel(req._id)}
+                          disabled={actionLoading}
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default LeaveCenter;
-

@@ -2,7 +2,7 @@
 
 > **Tagline:** People First. Work Smarter.  
 > **Target Audience:** ServiceNow University / SkillWallet Capstone Project  
-> **Development Phase:** Phase 5 — MongoDB Atlas Setup & Backend Foundation (Completed / Under Review)
+> **Development Phase:** Phase 9 — Leave Requests & Approval Workflows (Completed / Under Review)
 
 ---
 
@@ -49,12 +49,12 @@ To maintain exceptional architectural quality and clear separation of concerns, 
 | **02** | **UI/UX Design System & Application Blueprint** | **Approved** |
 | **03** | **Local Development Environment & GitHub Setup** | **Approved** |
 | **04** | **MERN Project Initialization & Frontend Foundation** | **Approved** |
-| **05** | **MongoDB Atlas Setup & Backend Foundation** | **Completed (Under Review)** |
-| 06 | Authentication & Role-Based Authorization | Pending (Next) |
-| 07 | Employee & Department Management | Pending |
-| 08 | Attendance Management Engine | Pending |
-| 09 | Leave Requests & Approval Workflows | Pending |
-| 10 | Announcements & Training Management | Pending |
+| **05** | **MongoDB Atlas Setup & Backend Foundation** | **Approved** |
+| **06** | **Authentication & Role-Based Authorization** | **Approved** |
+| **07** | **Employee & Department Management** | **Approved** |
+| **08** | **Attendance Management Engine** | **Approved** |
+| **09** | **Leave Requests & Approval Workflows** | **Approved** |
+| 10 | Announcements & Training Management | Pending (Next) |
 | 11 | Dashboards, Notifications & Analytics | Pending |
 | 12 | Full Integration, Testing, Security & Bug Fixing | Pending |
 | 13 | Final UI Polish, Documentation & Demo Preparation | Pending |
@@ -62,7 +62,12 @@ To maintain exceptional architectural quality and clear separation of concerns, 
 | 15 | Production Deployment & Final Verification | Pending |
 
 > [!NOTE]
-> Phase 5 is complete! The Express backend establishes a live, authenticated TLS connection to MongoDB Atlas (`staffsync` database) with bounded retry logic and real-time health diagnostics before accepting HTTP traffic. Authentication and role-based access control will be implemented in Phase 6.
+> Phases 5 through 9 are complete and verified against live MongoDB Atlas:
+> * **Phase 5:** MongoDB Atlas connection with bounded retry logic and health check diagnostics.
+> * **Phase 6:** JWT authentication in HTTP-only cookies with Role-Based Access Control (`HR_ADMIN`, `MANAGER`, `EMPLOYEE`).
+> * **Phase 7:** Employee lifecycle management, department structuring, and soft-deactivation.
+> * **Phase 8:** Attendance clock-in/out engine, daily unique compound index enforcement, and working hour calculations.
+> * **Phase 9:** Leave applications, quota balances, collision detection, and manager approval queues.
 
 ---
 
@@ -144,7 +149,7 @@ StaffSync/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/ashishtheanalyst/StaffSync.git
+   git clone https://github.com/vaideheechaurasia-design/StaffSync-.git
    cd StaffSync
    ```
 
@@ -154,16 +159,24 @@ StaffSync/
    ```
 
 3. **Configure Environment Variables:**
-   * Backend: Copy `server/.env.example` to `server/.env` and insert your Atlas connection string:
+   * Backend: Copy `server/.env.example` to `server/.env` and insert your Atlas connection string and JWT secret:
      ```bash
      PORT=5000
      CLIENT_URL=http://localhost:5173
      NODE_ENV=development
      MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/staffsync?retryWrites=true&w=majority
+     JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters_long
+     JWT_EXPIRES_IN=8h
      ```
    * Frontend: Copy `client/.env.example` to `client/.env`:
      ```bash
      VITE_API_BASE_URL=http://localhost:5000/api/v1
+     ```
+
+4. **Seed the Initial Administrator Account:**
+   * Run the idempotent admin provisioning script to create the initial `HR_ADMIN` user in MongoDB Atlas:
+     ```bash
+     npm run seed:admin
      ```
 
 ### Running the Application
@@ -171,6 +184,7 @@ StaffSync/
 | Command | Action | URL |
 | :--- | :--- | :--- |
 | **`npm run dev`** | **Runs backend and frontend concurrently** | **Client: `http://localhost:5173`**<br>**API: `http://localhost:5000`** |
+| `npm run seed:admin` | Provisions the default `HR_ADMIN` account in MongoDB | — |
 | `npm run client` | Starts Vite React development server | `http://localhost:5173` |
 | `npm run server` | Starts Express backend server with nodemon | `http://localhost:5000` |
 | `npm run build` | Compiles production assets in `client/dist/` | — |
@@ -204,7 +218,10 @@ curl http://localhost:5000/api/v1/health
     },
     "services": {
       "database": "Phase 5 (Connected)",
-      "authentication": "Phase 6 (JWT + HTTP-only cookies)"
+      "authentication": "Phase 6 (JWT + HTTP-only cookies)",
+      "employees": "Phase 7 (Active)",
+      "attendance": "Phase 8 (Active)",
+      "leaves": "Phase 9 (Active)"
     }
   }
 }
@@ -215,7 +232,36 @@ Run the backend test suite:
 ```bash
 npm run test
 ```
-* **Results:** 13 tests passed, 0 failed across `db.test.js`, `env.test.js`, and `health.test.js`.
+* **Results:** **115 tests passed, 0 failed across 10 test suites** (`attendance.test.js`, `auth.test.js`, `authMiddleware.test.js`, `db.test.js`, `employee.test.js`, `env.test.js`, `health.test.js`, `leave.test.js`, `seedAdmin.test.js`, `token.test.js`, `user.test.js`).
+
+---
+
+## 8. Deployment Target & Hosting Configuration
+
+### Backend Deployment (Render)
+* **Root Directory:** `server`
+* **Build Command:** `npm install`
+* **Start Command:** `node src/server.js`
+* **Environment Variables (Render Dashboard):**
+  * `NODE_ENV=production`
+  * `PORT=5000` *(or dynamically assigned by Render)*
+  * `MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/staffsync?retryWrites=true&w=majority`
+  * `JWT_SECRET=<secure-random-string-at-least-32-characters>`
+  * `JWT_EXPIRES_IN=8h`
+  * `CLIENT_URL=https://<your-vercel-app>.vercel.app` *(Must match the exact deployed frontend origin)*
+  * `ADMIN_PASSWORD=<secure-custom-password>` *(Required for admin provisioning)*
+
+### Frontend Deployment (Vercel)
+* **Root Directory:** `client`
+* **Build Command:** `npm run build`
+* **Output Directory:** `dist`
+* **Environment Variables (Vercel Dashboard):**
+  * `VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api/v1`
+* **SPA Routing:** Managed automatically by `client/vercel.json` rewrite configuration.
+
+### Known Limitations (Phase 10+ Scope)
+* **Announcements & Training:** Bulletin board and workshop enrollments are scheduled for Phase 10.
+* **Email Delivery:** Password resets and notifications currently operate within the application; external SMTP email dispatch is planned for production release.
 
 ---
 

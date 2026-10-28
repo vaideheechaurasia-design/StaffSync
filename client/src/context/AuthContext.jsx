@@ -1,62 +1,108 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authService } from '../api/authService.js';
 
 const AuthContext = createContext(null);
 
-const DEMO_USERS = {
-  HR_ADMIN: {
-    id: 'usr-admin-01',
-    employeeId: 'emp-admin-01',
-    employeeCode: 'EMP-1001',
-    firstName: 'Eleanor',
-    lastName: 'Vance',
-    email: 'admin@staffsync.internal',
-    role: 'HR_ADMIN',
-    designation: 'Director of Human Resources',
-    department: 'People Operations'
-  },
-  MANAGER: {
-    id: 'usr-mgr-01',
-    employeeId: 'emp-mgr-01',
-    employeeCode: 'EMP-1002',
-    firstName: 'Marcus',
-    lastName: 'Brody',
-    email: 'manager@staffsync.internal',
-    role: 'MANAGER',
-    designation: 'Engineering Team Lead',
-    department: 'Engineering'
-  },
-  EMPLOYEE: {
-    id: 'usr-emp-01',
-    employeeId: 'emp-emp-01',
-    employeeCode: 'EMP-1003',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'employee@staffsync.internal',
-    role: 'EMPLOYEE',
-    designation: 'Software Engineer',
-    department: 'Engineering'
-  }
-};
+/**
+ * Normalizes user object to guarantee property consistency across navigation and views.
+ *
+ * @param {Object} rawUser - User profile returned from the API
+ * @returns {Object|null}
+ */
+function normalizeUser(rawUser) {
+  if (!rawUser) return null;
+
+  const parts = (rawUser.name || '').trim().split(/\s+/);
+  const firstName = rawUser.firstName || parts[0] || rawUser.email?.split('@')[0] || 'User';
+  const lastName = rawUser.lastName || (parts.length > 1 ? parts.slice(1).join(' ') : '');
+  const initials = `${firstName[0] || ''}${lastName[0] || (firstName.length > 1 ? firstName[1] : '')}`.toUpperCase();
+
+  return {
+    ...rawUser,
+    id: rawUser.id || rawUser._id,
+    name: rawUser.name || `${firstName} ${lastName}`.trim(),
+    firstName,
+    lastName,
+    initials
+  };
+}
 
 export const AuthProvider = ({ children }) => {
-  // Phase 4 preview state: starts as HR_ADMIN so developer can inspect all views, with easy role switching
-  const [currentUser, setCurrentUser] = useState(DEMO_USERS.HR_ADMIN);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
 
-  const switchRole = (roleKey) => {
-    if (DEMO_USERS[roleKey]) {
-      setCurrentUser(DEMO_USERS[roleKey]);
-      setIsAuthenticated(true);
+  // Restore authenticated session on initial application load
+  const restoreSession = useCallback(async () => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const response = await authService.getMe();
+      if (response && response.success && response.data?.user) {
+        const normalized = normalizeUser(response.data.user);
+        setCurrentUser(normalized);
+        setIsAuthenticated(true);
+      } else {
+        setCurrentUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (err) {
+      // An unauthenticated session (401) on initial load is expected when the user is not logged in
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    restoreSession();
+  }, [restoreSession]);
+
+  /**
+   * Authenticates user via live credentials.
+   *
+   * @param {string} email
+   * @param {string} password
+   * @returns {Promise<Object>} The authenticated user profile
+   */
+  const login = async (email, password) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      const response = await authService.login({ email, password });
+      if (response && response.success && response.data?.user) {
+        const normalized = normalizeUser(response.data.user);
+        setCurrentUser(normalized);
+        setIsAuthenticated(true);
+        return normalized;
+      }
+      throw new Error(response?.message || 'Login failed.');
+    } catch (err) {
+      const message = err.message || 'Invalid email or password.';
+      setAuthError(message);
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-  };
-
-  const loginDemo = (roleKey = 'EMPLOYEE') => {
-    switchRole(roleKey);
+  /**
+   * Logs out user by clearing the server-side cookie and resetting local session.
+   */
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (err) {
+      console.warn('Logout notification:', err.message);
+    } finally {
+      setCurrentUser(null);
+      setIsAuthenticated(false);
+      setAuthError(null);
+    }
   };
 
   return (
@@ -65,10 +111,11 @@ export const AuthProvider = ({ children }) => {
         currentUser,
         role: currentUser?.role || null,
         isAuthenticated,
-        switchRole,
-        loginDemo,
+        isLoading,
+        authError,
+        login,
         logout,
-        isPhase4Foundation: true
+        restoreSession
       }}
     >
       {children}
@@ -84,3 +131,4 @@ export const useAuth = () => {
   return context;
 };
 
+export default AuthContext;

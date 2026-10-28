@@ -62,7 +62,13 @@ export const App = () => {
       </Route>
 
       {/* 3. Authenticated Application Shell Routes */}
-      <Route element={<DashboardLayout />}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
         {/* Smart Role-Based Router */}
         <Route path="/dashboard" element={<DashboardRouter />} />
 

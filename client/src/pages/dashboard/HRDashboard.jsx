@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import SummaryCard from '../../components/common/SummaryCard.jsx';
-import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
+import leaveService from '../../api/leaveService.js';
 
 export const HRDashboard = () => {
+  const [pendingLeaveCount, setPendingLeaveCount] = useState(0);
+
+  useEffect(() => {
+    leaveService.getPendingApprovals()
+      .then((res) => {
+        if (res && res.data) {
+          setPendingLeaveCount(res.data.length);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load pending leaves for HR dashboard:', err);
+      });
+  }, []);
+
   return (
     <div>
       <PageHeader
@@ -17,12 +31,6 @@ export const HRDashboard = () => {
             ➕ Onboard New Employee
           </Link>
         }
-      />
-
-      <PlaceholderNotice
-        featureName="HR Analytics & Live Aggregation"
-        targetPhase="Phase 11 (Dashboards, Notifications & Analytics)"
-        description="This dashboard displays the approved layout, KPI summary cards, and quick actions. Live MongoDB aggregation pipelines will connect in Phase 11."
       />
 
       {/* KPI Metric Summary Grid */}
@@ -52,16 +60,18 @@ export const HRDashboard = () => {
           />
         </div>
         <div className="col-12 col-sm-6 col-xl-3">
-          <SummaryCard
-            label="Pending Leaves"
-            value="9"
-            icon="📬"
-            changeText="Awaiting manager review"
-          />
+          <Link to="/leaves/approvals" className="text-decoration-none">
+            <SummaryCard
+              label="Pending Leaves"
+              value={String(pendingLeaveCount)}
+              icon="📬"
+              changeText={pendingLeaveCount > 0 ? "Awaiting administrative review" : "All requests reviewed"}
+            />
+          </Link>
         </div>
       </div>
 
-      {/* Main Content Grid: Department breakdown & Recent activity */}
+      {/* Main Content Grid: Department breakdown & Quick operations */}
       <div className="row g-4">
         {/* Department Overview */}
         <div className="col-lg-7">
@@ -130,13 +140,13 @@ export const HRDashboard = () => {
                 <strong>🏢 Structure Departments</strong>
                 <div className="small text-muted">Manage units & assign team leads</div>
               </Link>
-              <Link to="/announcements/manage" className="btn btn-outline-primary text-start p-2">
-                <strong>📢 Publish Bulletin</strong>
-                <div className="small text-muted">Broadcast company-wide news or alerts</div>
+              <Link to="/leaves/approvals" className="btn btn-outline-primary text-start p-2">
+                <strong>📬 Review Leave Requests</strong>
+                <div className="small text-muted">Approve or reject pending employee leaves</div>
               </Link>
-              <Link to="/training/manage" className="btn btn-outline-primary text-start p-2">
-                <strong>🎓 Schedule Workshop</strong>
-                <div className="small text-muted">Create corporate training sessions</div>
+              <Link to="/attendance/admin" className="btn btn-outline-primary text-start p-2">
+                <strong>⏰ Attendance Overview</strong>
+                <div className="small text-muted">Company time-tracking & manual punches</div>
               </Link>
             </div>
           </div>
@@ -147,4 +157,3 @@ export const HRDashboard = () => {
 };
 
 export default HRDashboard;
-

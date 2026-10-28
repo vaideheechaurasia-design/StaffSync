@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { config } from './config/env.js';
 import apiRouter from './routes/index.js';
 import { notFoundMiddleware } from './middlewares/notFoundMiddleware.js';
@@ -32,6 +33,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Cookie parser middleware (enables reading signed/unsigned cookies from req.cookies)
+app.use(cookieParser());
+
 // HTTP Request logging
 if (config.isDevelopment) {
   app.use(morgan('dev'));
@@ -61,4 +65,3 @@ app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
 export default app;
-

@@ -1,26 +1,44 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export const LoginPage = () => {
-  const { loginDemo } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [email, setEmail] = useState('admin@staffsync.internal');
-  const [password, setPassword] = useState('Password123!');
-  const [selectedRole, setSelectedRole] = useState('HR_ADMIN');
+  const [password, setPassword] = useState('AdminPassword123!');
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleDemoSelect = (roleKey, demoEmail) => {
-    setSelectedRole(roleKey);
-    setEmail(demoEmail);
-    setPassword('Password123!');
+  // Quick-fill helper strictly populates form inputs; does not bypass backend authentication
+  const handleQuickFill = (fillEmail, fillPass) => {
+    setEmail(fillEmail);
+    setPassword(fillPass);
+    setErrorMessage(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // In Phase 4, login sets the selected role context so the developer can evaluate the UI
-    loginDemo(selectedRole);
-    navigate('/dashboard');
+
+    if (!email || !password || !email.trim() || !password.trim()) {
+      setErrorMessage('Please enter both your work email and password.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      await login(email.trim(), password);
+      const destination = location.state?.from?.pathname || '/dashboard';
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setErrorMessage(err.message || 'Authentication failed. Please verify your credentials.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -34,37 +52,31 @@ export const LoginPage = () => {
         </p>
       </div>
 
-      {/* Phase 4 Informational Banner */}
-      <div className="alert alert-info py-2 px-3 small mb-4" role="status">
-        <strong>Phase 4 Foundation Note:</strong> Backend JWT authentication will be activated in Phase 6. You can preview all role portals using the quick demo pills below.
-      </div>
+      {/* Error notification banner */}
+      {errorMessage && (
+        <div className="alert alert-danger py-2 px-3 small mb-4" role="alert">
+          <strong>Authentication Error:</strong> {errorMessage}
+        </div>
+      )}
 
-      {/* Demo Credentials Quick-Select Bar */}
-      <div className="mb-4">
-        <label className="form-label small fw-semibold text-muted text-uppercase mb-2" style={{ fontSize: '0.75rem' }}>
-          Select Demo Role to Preview:
-        </label>
-        <div className="d-flex gap-2">
+      {/* Capstone Evaluation / Developer Quick-Fill Helper */}
+      <div className="p-2 mb-4 rounded bg-light border" style={{ fontSize: '0.8rem' }}>
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <span className="fw-semibold text-muted text-uppercase" style={{ fontSize: '0.7rem' }}>
+            Capstone Quick-Fill (Form Inputs Only)
+          </span>
+          <span className="badge bg-secondary" style={{ fontSize: '0.65rem' }}>
+            Live Backend Auth
+          </span>
+        </div>
+        <div className="d-flex gap-2 mt-1">
           <button
             type="button"
-            className={`btn btn-sm flex-fill ${selectedRole === 'HR_ADMIN' ? 'btn-primary' : 'btn-outline-secondary'}`}
-            onClick={() => handleDemoSelect('HR_ADMIN', 'admin@staffsync.internal')}
+            className="btn btn-sm btn-outline-primary flex-fill py-1 px-2"
+            style={{ fontSize: '0.75rem' }}
+            onClick={() => handleQuickFill('admin@staffsync.internal', 'AdminPassword123!')}
           >
-            HR Admin
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm flex-fill ${selectedRole === 'MANAGER' ? 'btn-primary' : 'btn-outline-secondary'}`}
-            onClick={() => handleDemoSelect('MANAGER', 'manager@staffsync.internal')}
-          >
-            Manager
-          </button>
-          <button
-            type="button"
-            className={`btn btn-sm flex-fill ${selectedRole === 'EMPLOYEE' ? 'btn-primary' : 'btn-outline-secondary'}`}
-            onClick={() => handleDemoSelect('EMPLOYEE', 'employee@staffsync.internal')}
-          >
-            Employee
+            HR Admin Seed
           </button>
         </div>
       </div>
@@ -82,6 +94,8 @@ export const LoginPage = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="username"
+            disabled={isSubmitting}
+            placeholder="name@company.com"
           />
         </div>
 
@@ -97,11 +111,24 @@ export const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
+            disabled={isSubmitting}
+            placeholder="••••••••"
           />
         </div>
 
-        <button type="submit" className="btn btn-accent w-100 py-2 fw-semibold">
-          Sign In to Portal →
+        <button
+          type="submit"
+          className="btn btn-accent w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+              <span>Authenticating...</span>
+            </>
+          ) : (
+            <span>Sign In to Portal →</span>
+          )}
         </button>
       </form>
     </div>
@@ -109,4 +136,3 @@ export const LoginPage = () => {
 };
 
 export default LoginPage;
-

@@ -1,11 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import SummaryCard from '../../components/common/SummaryCard.jsx';
-import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
+import leaveService from '../../api/leaveService.js';
 
 export const ManagerDashboard = () => {
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [isLoadingLeaves, setIsLoadingLeaves] = useState(true);
+
+  useEffect(() => {
+    leaveService.getPendingApprovals()
+      .then((res) => {
+        if (res && res.data) {
+          setPendingRequests(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load pending leaves for dashboard:', err);
+      })
+      .finally(() => {
+        setIsLoadingLeaves(false);
+      });
+  }, []);
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return isNaN(d.getTime())
+      ? '—'
+      : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div>
       <PageHeader
@@ -14,15 +40,9 @@ export const ManagerDashboard = () => {
         breadcrumbs={[{ label: 'Manager Dashboard', path: '/dashboard/manager' }]}
         actionButton={
           <Link to="/leaves/approvals" className="btn btn-accent btn-sm">
-            📬 Review Pending Leaves (3)
+            📬 Review Pending Leaves ({pendingRequests.length})
           </Link>
         }
-      />
-
-      <PlaceholderNotice
-        featureName="Manager Team Analytics"
-        targetPhase="Phase 11 (Dashboards, Notifications & Analytics)"
-        description="Displays team metrics and approval queues. Multi-tier approval workflows will be wired up in Phase 9."
       />
 
       {/* KPI Cards */}
@@ -46,14 +66,14 @@ export const ManagerDashboard = () => {
         <div className="col-12 col-md-4">
           <SummaryCard
             label="Pending Leave Requests"
-            value="3"
+            value={String(pendingRequests.length)}
             icon="📬"
-            changeText="Requires your decision"
+            changeText={pendingRequests.length > 0 ? "Requires your decision" : "All caught up"}
           />
         </div>
       </div>
 
-      {/* Team Pending Leave Approvals Table Preview */}
+      {/* Team Pending Leave Approvals Table */}
       <div className="ss-card p-4 mb-4">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
@@ -64,56 +84,54 @@ export const ManagerDashboard = () => {
           </Link>
         </div>
 
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
-            <thead className="table-light">
-              <tr>
-                <th>Applicant</th>
-                <th>Type</th>
-                <th>Dates</th>
-                <th>Days</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <strong>Jane Doe</strong>
-                  <div className="small text-muted">EMP-1003</div>
-                </td>
-                <td><StatusBadge status="UPCOMING" /> Annual Leave</td>
-                <td>Nov 10 – Nov 12, 2026</td>
-                <td>3.0 days</td>
-                <td><StatusBadge status="PENDING" /></td>
-                <td>
-                  <Link to="/leaves/approvals" className="btn btn-sm btn-outline-primary py-0">
-                    Review
-                  </Link>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <strong>Robert Smith</strong>
-                  <div className="small text-muted">EMP-1008</div>
-                </td>
-                <td><StatusBadge status="UPCOMING" /> Casual Leave</td>
-                <td>Nov 14, 2026</td>
-                <td>1.0 day</td>
-                <td><StatusBadge status="PENDING" /></td>
-                <td>
-                  <Link to="/leaves/approvals" className="btn btn-sm btn-outline-primary py-0">
-                    Review
-                  </Link>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {isLoadingLeaves ? (
+          <div className="p-3 text-center text-muted small">Loading pending requests...</div>
+        ) : pendingRequests.length === 0 ? (
+          <div className="p-4 text-center text-muted">
+            <div className="fs-3 mb-1">✓</div>
+            <p className="mb-0 small">No pending team leave applications awaiting review.</p>
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
+              <thead className="table-light">
+                <tr>
+                  <th>Applicant</th>
+                  <th>Type</th>
+                  <th>Dates</th>
+                  <th>Days</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingRequests.slice(0, 5).map((req) => {
+                  const emp = req.employeeId || {};
+                  return (
+                    <tr key={req._id}>
+                      <td>
+                        <strong>{emp.firstName ? `${emp.firstName} ${emp.lastName}` : 'Employee'}</strong>
+                        <div className="small text-muted">{emp.employeeCode || '—'}</div>
+                      </td>
+                      <td><span className="badge bg-light text-dark border">{req.leaveType}</span></td>
+                      <td>{formatDate(req.startDate)} – {formatDate(req.endDate)}</td>
+                      <td><span className="font-monospace">{req.totalDays} day{req.totalDays > 1 ? 's' : ''}</span></td>
+                      <td><StatusBadge status={req.status} /></td>
+                      <td>
+                        <Link to="/leaves/approvals" className="btn btn-sm btn-outline-primary py-0">
+                          Review
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default ManagerDashboard;
-
