@@ -2,7 +2,7 @@
 
 > **Tagline:** People First. Work Smarter.  
 > **Target Audience:** ServiceNow University / SkillWallet Capstone Project  
-> **Development Phase:** Phase 4 — MERN Project Initialization & Frontend Foundation (Completed / Under Review)
+> **Development Phase:** Phase 5 — MongoDB Atlas Setup & Backend Foundation (Completed / Under Review)
 
 ---
 
@@ -32,7 +32,7 @@ StaffSync bridges the gap between organizational governance and employee empower
 
 * **Frontend:** React 18 (SPA), Vite 6, React Router v6, Bootstrap 5.3, Bootstrap Icons, Custom CSS
 * **Backend:** Node.js LTS (v20+), Express.js 4 (Modular Monolith architecture, ES Modules)
-* **Database:** MongoDB Atlas (Cloud Managed NoSQL) via Mongoose 8+ ODM *(deferred to Phase 5)*
+* **Database:** MongoDB Atlas (Cloud Managed NoSQL) via Mongoose 9 ODM *(Phase 5 Connected)*
 * **Authentication & Security:** JSON Web Tokens (JWT) stored in HTTP-Only SameSite Cookies, `bcryptjs`, `helmet`, `cors`, `express-rate-limit`, `mongo-sanitize`, `express-validator` *(deferred to Phase 6)*
 * **Testing:** Node.js Native Test Runner, Supertest, Jest, React Testing Library
 * **Cloud Hosting (Planned):** Vercel (Frontend), Render (Backend API), MongoDB Atlas (Database)
@@ -48,9 +48,9 @@ To maintain exceptional architectural quality and clear separation of concerns, 
 | **01** | **Requirements Analysis & System Architecture Design** | **Approved** |
 | **02** | **UI/UX Design System & Application Blueprint** | **Approved** |
 | **03** | **Local Development Environment & GitHub Setup** | **Approved** |
-| **04** | **MERN Project Initialization & Frontend Foundation** | **Completed (Under Review)** |
-| 05 | MongoDB Atlas Setup & Backend Foundation | Pending (Next) |
-| 06 | Authentication & Role-Based Authorization | Pending |
+| **04** | **MERN Project Initialization & Frontend Foundation** | **Approved** |
+| **05** | **MongoDB Atlas Setup & Backend Foundation** | **Completed (Under Review)** |
+| 06 | Authentication & Role-Based Authorization | Pending (Next) |
 | 07 | Employee & Department Management | Pending |
 | 08 | Attendance Management Engine | Pending |
 | 09 | Leave Requests & Approval Workflows | Pending |
@@ -62,7 +62,7 @@ To maintain exceptional architectural quality and clear separation of concerns, 
 | 15 | Production Deployment & Final Verification | Pending |
 
 > [!NOTE]
-> Phase 4 is complete! The frontend application shell with all 22 routes and layouts, plus the Express API shell with `/api/v1/health` diagnostics, are fully functional. MongoDB Atlas connection will be configured in Phase 5, followed by real JWT authentication in Phase 6.
+> Phase 5 is complete! The Express backend establishes a live, authenticated TLS connection to MongoDB Atlas (`staffsync` database) with bounded retry logic and real-time health diagnostics before accepting HTTP traffic. Authentication and role-based access control will be implemented in Phase 6.
 
 ---
 
@@ -86,7 +86,8 @@ StaffSync/
 │   ├── IMPLEMENTATION_ROADMAP.md
 │   ├── PAGE_SPECIFICATIONS.md
 │   ├── PHASE_2_REVIEW.md
-│   ├── PHASE_4_REVIEW.md              # Detailed verification report for Phase 4
+│   ├── PHASE_4_REVIEW.md
+│   ├── PHASE_5_REVIEW.md              # Detailed verification report for Phase 5
 │   ├── PROGRESS.md                    # Phased progress tracker
 │   ├── PROJECT_PLAN.md
 │   ├── SECURITY_DESIGN.md
@@ -113,17 +114,19 @@ StaffSync/
 │       └── main.jsx                   # Application bootstrap entry
 │
 └── server/                            # Express.js REST API Backend
-    ├── package.json                   # Backend dependencies (Express, Helmet, CORS, Dotenv)
-    ├── .env.example                   # Server environment template
+    ├── package.json                   # Backend dependencies (Express, Helmet, CORS, Mongoose)
+    ├── .env.example                   # Server environment template with MONGODB_URI
     ├── .env                           # Local server environment (git-ignored)
     ├── src/
-    │   ├── config/                    # Validated environment settings (PORT, CLIENT_URL)
+    │   ├── config/                    # Database connection (db.js) & environment loader (env.js)
     │   ├── middlewares/               # Error middleware & 404 handler
-    │   ├── routes/                    # API v1 router and /health diagnostic routes
+    │   ├── routes/                    # API router (/api/v1) and /health diagnostics
     │   ├── app.js                     # Express app setup (Helmet, CORS, Morgan, JSON parser)
     │   └── server.js                  # HTTP server bootstrap & graceful shutdown listeners
     └── tests/
-        └── health.test.js             # Automated API health & 404 test suite
+        ├── db.test.js                 # Automated tests for connection logic & status reporting
+        ├── env.test.js                # Automated tests for configuration schema & credential masking
+        └── health.test.js             # Automated tests for /api/v1/health and /api/health
 ```
 
 ---
@@ -135,6 +138,7 @@ StaffSync/
 * **Node.js:** v20.x or v22.x LTS installed (`node -v`)
 * **npm:** v10.x or v11.x installed (`npm -v`)
 * **Git:** Version control installed (`git --version`)
+* **MongoDB Atlas:** Free cluster deployed with database user credentials
 
 ### Installation
 
@@ -150,11 +154,12 @@ StaffSync/
    ```
 
 3. **Configure Environment Variables:**
-   * Backend: Copy `server/.env.example` to `server/.env` (default values work out of the box for local development):
+   * Backend: Copy `server/.env.example` to `server/.env` and insert your Atlas connection string:
      ```bash
      PORT=5000
      CLIENT_URL=http://localhost:5173
      NODE_ENV=development
+     MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/staffsync?retryWrites=true&w=majority
      ```
    * Frontend: Copy `client/.env.example` to `client/.env`:
      ```bash
@@ -176,7 +181,7 @@ StaffSync/
 ## 7. Verification & Health Check
 
 ### Health Check Endpoint
-Once the server is running, the API health check can be verified via browser or terminal:
+Once the server is running, the API and database health check can be verified via browser or terminal:
 ```bash
 curl http://localhost:5000/api/v1/health
 ```
@@ -186,14 +191,20 @@ curl http://localhost:5000/api/v1/health
   "success": true,
   "statusCode": 200,
   "status": "healthy",
-  "message": "StaffSync HRMS API is operational.",
+  "message": "StaffSync HRMS API and Database are operational.",
   "data": {
     "uptimeSeconds": 14,
     "environment": "development",
     "version": "1.0.0",
     "database": {
-      "status": "pending_configuration",
-      "message": "MongoDB Atlas connection will be configured in Phase 5."
+      "status": "connected",
+      "host": "ac-sz12oft-shard-00-02.olb0co1.mongodb.net",
+      "name": "staffsync",
+      "message": "MongoDB Atlas connection is established and healthy."
+    },
+    "services": {
+      "database": "Phase 5 (Connected)",
+      "authentication": "Phase 6 (JWT + HTTP-only cookies)"
     }
   }
 }
@@ -204,7 +215,7 @@ Run the backend test suite:
 ```bash
 npm run test
 ```
-* **Results:** 4 tests passed, 0 failed.
+* **Results:** 13 tests passed, 0 failed across `db.test.js`, `env.test.js`, and `health.test.js`.
 
 ---
 
@@ -227,3 +238,4 @@ All architectural specifications are documented inside the [`docs/`](file:///c:/
 13. [**`DECISIONS.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/DECISIONS.md) — Formal Architecture Decision Records (ADR-001 through ADR-010) explaining key technical choices and trade-offs.
 14. [**`PROGRESS.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PROGRESS.md) — Detailed task execution tracker for all 15 phases.
 15. [**`PHASE_4_REVIEW.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PHASE_4_REVIEW.md) — Verification audit and test results for Phase 4.
+16. [**`PHASE_5_REVIEW.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PHASE_5_REVIEW.md) — Verification audit, debugging analysis, and live connection results for Phase 5.
