@@ -16,26 +16,26 @@ StaffSync bridges the gap between organizational governance and employee empower
 
 ## 2. Core Capabilities
 
-* **Employee Lifecycle Management:** Centralized employee directory, detailed profiles, self-service contact updates, and HR onboarding/deactivation.
-* **Department & Organization Management:** Department structuring, manager assignments, and departmental headcount tracking.
-* **Time & Attendance Tracking:** Daily one-click check-in and check-out, working hour calculations, late arrival flags, and personal attendance history.
-* **Leave Management & Approval Workflows:** Annual leave balance tracking (Annual, Casual, Sick, Unpaid), leave application submission, collision detection, and Manager approval/rejection queues.
-* **Company Announcements:** Official bulletin board with priority flags (Normal, High, Urgent) and pinned updates.
-* **Training & Development:** Corporate workshop catalog, seat capacity monitoring, and one-click employee self-enrollment.
-* **In-App Notifications:** Real-time alert badges for leave updates, attendance reminders, and company news.
-* **Executive HR Analytics:** Role-specific KPI dashboards, headcount distribution metrics, and monthly leave trend visualizations.
-* **Enterprise Security & RBAC:** Backend-enforced role-based access control, bcrypt password hashing, HTTP-only JWT sessions, rate limiting, and immutable audit logging.
+- **Employee Lifecycle Management:** Centralized employee directory, detailed profiles, self-service contact updates, and HR onboarding/deactivation.
+- **Department & Organization Management:** Department structuring, manager assignments, and departmental headcount tracking.
+- **Time & Attendance Tracking:** Daily one-click check-in and check-out, working hour calculations, late arrival flags, and personal attendance history.
+- **Leave Management & Approval Workflows:** Annual leave balance tracking (Annual, Casual, Sick, Unpaid), leave application submission, collision detection, and Manager approval/rejection queues.
+- **Company Announcements:** Official bulletin board with priority flags (Normal, High, Urgent) and pinned updates.
+- **Training & Development:** Corporate workshop catalog, seat capacity monitoring, and one-click employee self-enrollment.
+- **In-App Notifications:** Real-time alert badges for leave updates, attendance reminders, and company news.
+- **Executive HR Analytics:** Role-specific KPI dashboards, headcount distribution metrics, and monthly leave trend visualizations.
+- **Enterprise Security & RBAC:** Backend-enforced role-based access control, bcrypt password hashing, HTTP-only JWT sessions, rate limiting, and immutable audit logging.
 
 ---
 
 ## 3. Technology Stack
 
-* **Frontend:** React 18 (SPA), Vite 6, React Router v6, Bootstrap 5.3, Bootstrap Icons, Custom CSS
-* **Backend:** Node.js LTS (v20+), Express.js 4 (Modular Monolith architecture, ES Modules)
-* **Database:** MongoDB Atlas (Cloud Managed NoSQL) via Mongoose 9 ODM *(Phase 5 Connected)*
-* **Authentication & Security:** JSON Web Tokens (JWT) stored in HTTP-Only SameSite Cookies, `bcryptjs`, `helmet`, `cors`, `express-rate-limit`, `mongo-sanitize`, `express-validator` *(deferred to Phase 6)*
-* **Testing:** Node.js Native Test Runner, Supertest, Jest, React Testing Library
-* **Cloud Hosting (Planned):** Vercel (Frontend), Render (Backend API), MongoDB Atlas (Database)
+- **Frontend:** React 18 (SPA), Vite 6, React Router v6, Bootstrap 5.3, Bootstrap Icons, Custom CSS
+- **Backend:** Node.js LTS (v20+), Express.js 4 (Modular Monolith architecture, ES Modules)
+- **Database:** MongoDB Atlas (Cloud Managed NoSQL) via Mongoose 9 ODM _(Phase 5 Connected)_
+- **Authentication & Security:** JSON Web Tokens (JWT) stored in HTTP-Only SameSite Cookies, `bcryptjs`, `helmet`, `cors`, `express-rate-limit`, `mongo-sanitize`, `express-validator` _(deferred to Phase 6)_
+- **Testing:** Node.js Native Test Runner, Supertest, Jest, React Testing Library
+- **Cloud Hosting (Planned):** Vercel (Frontend), Render (Backend API), MongoDB Atlas (Database)
 
 ---
 
@@ -43,31 +43,32 @@ StaffSync bridges the gap between organizational governance and employee empower
 
 To maintain exceptional architectural quality and clear separation of concerns, StaffSync is developed across 15 structured phases:
 
-| Phase | Milestone | Status |
-| :---: | :--- | :---: |
-| **01** | **Requirements Analysis & System Architecture Design** | **Approved** |
-| **02** | **UI/UX Design System & Application Blueprint** | **Approved** |
-| **03** | **Local Development Environment & GitHub Setup** | **Approved** |
-| **04** | **MERN Project Initialization & Frontend Foundation** | **Approved** |
-| **05** | **MongoDB Atlas Setup & Backend Foundation** | **Approved** |
-| **06** | **Authentication & Role-Based Authorization** | **Approved** |
-| **07** | **Employee & Department Management** | **Approved** |
-| **08** | **Attendance Management Engine** | **Approved** |
-| **09** | **Leave Requests & Approval Workflows** | **Approved** |
-| 10 | Announcements & Training Management | Pending (Next) |
-| 11 | Dashboards, Notifications & Analytics | Pending |
-| 12 | Full Integration, Testing, Security & Bug Fixing | Pending |
-| 13 | Final UI Polish, Documentation & Demo Preparation | Pending |
-| 14 | GitHub Finalization & Release | Pending |
-| 15 | Production Deployment & Final Verification | Pending |
+| Phase  | Milestone                                              |     Status     |
+| :----: | :----------------------------------------------------- | :------------: |
+| **01** | **Requirements Analysis & System Architecture Design** |  **Approved**  |
+| **02** | **UI/UX Design System & Application Blueprint**        |  **Approved**  |
+| **03** | **Local Development Environment & GitHub Setup**       |  **Approved**  |
+| **04** | **MERN Project Initialization & Frontend Foundation**  |  **Approved**  |
+| **05** | **MongoDB Atlas Setup & Backend Foundation**           |  **Approved**  |
+| **06** | **Authentication & Role-Based Authorization**          |  **Approved**  |
+| **07** | **Employee & Department Management**                   |  **Approved**  |
+| **08** | **Attendance Management Engine**                       |  **Approved**  |
+| **09** | **Leave Requests & Approval Workflows**                |  **Approved**  |
+|   10   | Announcements & Training Management                    | Pending (Next) |
+|   11   | Dashboards, Notifications & Analytics                  |    Pending     |
+|   12   | Full Integration, Testing, Security & Bug Fixing       |    Pending     |
+|   13   | Final UI Polish, Documentation & Demo Preparation      |    Pending     |
+|   14   | GitHub Finalization & Release                          |    Pending     |
+|   15   | Production Deployment & Final Verification             |    Pending     |
 
 > [!NOTE]
 > Phases 5 through 9 are complete and verified against live MongoDB Atlas:
-> * **Phase 5:** MongoDB Atlas connection with bounded retry logic and health check diagnostics.
-> * **Phase 6:** JWT authentication in HTTP-only cookies with Role-Based Access Control (`HR_ADMIN`, `MANAGER`, `EMPLOYEE`).
-> * **Phase 7:** Employee lifecycle management, department structuring, and soft-deactivation.
-> * **Phase 8:** Attendance clock-in/out engine, daily unique compound index enforcement, and working hour calculations.
-> * **Phase 9:** Leave applications, quota balances, collision detection, and manager approval queues.
+>
+> - **Phase 5:** MongoDB Atlas connection with bounded retry logic and health check diagnostics.
+> - **Phase 6:** JWT authentication in HTTP-only cookies with Role-Based Access Control (`HR_ADMIN`, `MANAGER`, `EMPLOYEE`).
+> - **Phase 7:** Employee lifecycle management, department structuring, and soft-deactivation.
+> - **Phase 8:** Attendance clock-in/out engine, daily unique compound index enforcement, and working hour calculations.
+> - **Phase 9:** Leave applications, quota balances, collision detection, and manager approval queues.
 
 ---
 
@@ -140,26 +141,28 @@ StaffSync/
 
 ### Prerequisites
 
-* **Node.js:** v20.x or v22.x LTS installed (`node -v`)
-* **npm:** v10.x or v11.x installed (`npm -v`)
-* **Git:** Version control installed (`git --version`)
-* **MongoDB Atlas:** Free cluster deployed with database user credentials
+- **Node.js:** v20.x or v22.x LTS installed (`node -v`)
+- **npm:** v10.x or v11.x installed (`npm -v`)
+- **Git:** Version control installed (`git --version`)
+- **MongoDB Atlas:** Free cluster deployed with database user credentials
 
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/vaideheechaurasia-design/StaffSync-.git
    cd StaffSync
    ```
 
 2. **Install all dependencies (root, backend, and frontend):**
+
    ```bash
    npm run install:all
    ```
 
 3. **Configure Environment Variables:**
-   * Backend: Copy `server/.env.example` to `server/.env` and insert your Atlas connection string and JWT secret:
+   - Backend: Copy `server/.env.example` to `server/.env` and insert your Atlas connection string and JWT secret:
      ```bash
      PORT=5000
      CLIENT_URL=http://localhost:5173
@@ -168,38 +171,42 @@ StaffSync/
      JWT_SECRET=your_super_secret_jwt_key_at_least_32_characters_long
      JWT_EXPIRES_IN=8h
      ```
-   * Frontend: Copy `client/.env.example` to `client/.env`:
+   - Frontend: Copy `client/.env.example` to `client/.env`:
      ```bash
      VITE_API_BASE_URL=http://localhost:5000/api/v1
      ```
 
 4. **Seed the Initial Administrator Account:**
-   * Run the idempotent admin provisioning script to create the initial `HR_ADMIN` user in MongoDB Atlas:
+   - Run the idempotent admin provisioning script to create the initial `HR_ADMIN` user in MongoDB Atlas:
      ```bash
      npm run seed:admin
      ```
 
 ### Running the Application
 
-| Command | Action | URL |
-| :--- | :--- | :--- |
-| **`npm run dev`** | **Runs backend and frontend concurrently** | **Client: `http://localhost:5173`**<br>**API: `http://localhost:5000`** |
-| `npm run seed:admin` | Provisions the default `HR_ADMIN` account in MongoDB | — |
-| `npm run client` | Starts Vite React development server | `http://localhost:5173` |
-| `npm run server` | Starts Express backend server with nodemon | `http://localhost:5000` |
-| `npm run build` | Compiles production assets in `client/dist/` | — |
-| `npm run test` | Runs backend automated test suite | — |
+| Command              | Action                                               | URL                                                                     |
+| :------------------- | :--------------------------------------------------- | :---------------------------------------------------------------------- |
+| **`npm run dev`**    | **Runs backend and frontend concurrently**           | **Client: `http://localhost:5173`**<br>**API: `http://localhost:5000`** |
+| `npm run seed:admin` | Provisions the default `HR_ADMIN` account in MongoDB | —                                                                       |
+| `npm run client`     | Starts Vite React development server                 | `http://localhost:5173`                                                 |
+| `npm run server`     | Starts Express backend server with nodemon           | `http://localhost:5000`                                                 |
+| `npm run build`      | Compiles production assets in `client/dist/`         | —                                                                       |
+| `npm run test`       | Runs backend automated test suite                    | —                                                                       |
 
 ---
 
 ## 7. Verification & Health Check
 
 ### Health Check Endpoint
+
 Once the server is running, the API and database health check can be verified via browser or terminal:
+
 ```bash
 curl http://localhost:5000/api/v1/health
 ```
+
 **Example Response:**
+
 ```json
 {
   "success": true,
@@ -228,40 +235,46 @@ curl http://localhost:5000/api/v1/health
 ```
 
 ### Automated Testing
+
 Run the backend test suite:
+
 ```bash
 npm run test
 ```
-* **Results:** **115 tests passed, 0 failed across 10 test suites** (`attendance.test.js`, `auth.test.js`, `authMiddleware.test.js`, `db.test.js`, `employee.test.js`, `env.test.js`, `health.test.js`, `leave.test.js`, `seedAdmin.test.js`, `token.test.js`, `user.test.js`).
+
+- **Results:** **115 tests passed, 0 failed across 10 test suites** (`attendance.test.js`, `auth.test.js`, `authMiddleware.test.js`, `db.test.js`, `employee.test.js`, `env.test.js`, `health.test.js`, `leave.test.js`, `seedAdmin.test.js`, `token.test.js`, `user.test.js`).
 
 ---
 
 ## 8. Deployment Target & Hosting Configuration
 
 ### Backend Deployment (Render)
-* **Root Directory:** `server`
-* **Build Command:** `npm install`
-* **Start Command:** `node src/server.js`
-* **Environment Variables (Render Dashboard):**
-  * `NODE_ENV=production`
-  * `PORT=5000` *(or dynamically assigned by Render)*
-  * `MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/staffsync?retryWrites=true&w=majority`
-  * `JWT_SECRET=<secure-random-string-at-least-32-characters>`
-  * `JWT_EXPIRES_IN=8h`
-  * `CLIENT_URL=https://<your-vercel-app>.vercel.app` *(Must match the exact deployed frontend origin)*
-  * `ADMIN_PASSWORD=<secure-custom-password>` *(Required for admin provisioning)*
+
+- **Root Directory:** `server`
+- **Build Command:** `npm install`
+- **Start Command:** `node src/server.js`
+- **Environment Variables (Render Dashboard):**
+  - `NODE_ENV=production`
+  - `PORT=5000` _(or dynamically assigned by Render)_
+  - `MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/staffsync?retryWrites=true&w=majority`
+  - `JWT_SECRET=<secure-random-string-at-least-32-characters>`
+  - `JWT_EXPIRES_IN=8h`
+  - `CLIENT_URL=https://<your-vercel-app>.vercel.app` _(Must match the exact deployed frontend origin)_
+  - `ADMIN_PASSWORD=<secure-custom-password>` _(Required for admin provisioning)_
 
 ### Frontend Deployment (Vercel)
-* **Root Directory:** `client`
-* **Build Command:** `npm run build`
-* **Output Directory:** `dist`
-* **Environment Variables (Vercel Dashboard):**
-  * `VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api/v1`
-* **SPA Routing:** Managed automatically by `client/vercel.json` rewrite configuration.
+
+- **Root Directory:** `client`
+- **Build Command:** `npm run build`
+- **Output Directory:** `dist`
+- **Environment Variables (Vercel Dashboard):**
+  - `VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api/v1`
+- **SPA Routing:** Managed automatically by `client/vercel.json` rewrite configuration.
 
 ### Known Limitations (Phase 10+ Scope)
-* **Announcements & Training:** Bulletin board and workshop enrollments are scheduled for Phase 10.
-* **Email Delivery:** Password resets and notifications currently operate within the application; external SMTP email dispatch is planned for production release.
+
+- **Announcements & Training:** Bulletin board and workshop enrollments are scheduled for Phase 10.
+- **Email Delivery:** Password resets and notifications currently operate within the application; external SMTP email dispatch is planned for production release.
 
 ---
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
+import Icon from '../../components/common/Icon.jsx';
 
 export const ManageAnnouncements = () => {
   return (
@@ -14,8 +15,9 @@ export const ManageAnnouncements = () => {
           { label: 'Manage', path: '/announcements/manage' }
         ]}
         actionButton={
-          <Link to="/announcements" className="btn btn-outline-secondary btn-sm">
-            ← View Feed
+          <Link to="/announcements" className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5">
+            <Icon name="arrow-left" size={15} />
+            <span>View Feed</span>
           </Link>
         }
       />
@@ -68,7 +70,7 @@ export const ManageAnnouncements = () => {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-accent">
+          <button type="submit" className="btn btn-accent btn-sm px-4">
             Publish Announcement
           </button>
         </form>
@@ -78,4 +80,3 @@ export const ManageAnnouncements = () => {
 };
 
 export default ManageAnnouncements;
-

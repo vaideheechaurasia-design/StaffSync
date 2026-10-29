@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
+import Icon from '../../components/common/Icon.jsx';
 
 export const ManageTraining = () => {
   return (
@@ -14,8 +15,9 @@ export const ManageTraining = () => {
           { label: 'Manage Sessions', path: '/training/manage' }
         ]}
         actionButton={
-          <Link to="/training" className="btn btn-outline-secondary btn-sm">
-            ← View Catalog
+          <Link to="/training" className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5">
+            <Icon name="arrow-left" size={15} />
+            <span>View Catalog</span>
           </Link>
         }
       />
@@ -69,7 +71,7 @@ export const ManageTraining = () => {
             <textarea className="form-control" rows="3" placeholder="Overview of skills taught..." required />
           </div>
 
-          <button type="submit" className="btn btn-accent">
+          <button type="submit" className="btn btn-accent btn-sm px-4">
             Schedule Program
           </button>
         </form>
@@ -79,4 +81,3 @@ export const ManageTraining = () => {
 };
 
 export default ManageTraining;
-

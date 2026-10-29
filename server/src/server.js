@@ -9,10 +9,7 @@ async function startServer() {
     // 1. Validate environment configuration
     validateEnv();
 
-    // 2. Connect to MongoDB Atlas before accepting application traffic
-    await connectDB();
-
-    // 3. Start HTTP Server listener
+    // 2. Start HTTP Server listener first so health check and diagnostics are reachable
     server = app.listen(config.port, () => {
       console.log('----------------------------------------------------');
       console.log(`🚀 StaffSync API Server running in [${config.env}] mode`);
@@ -20,12 +17,32 @@ async function startServer() {
       console.log(`🩺 Health check: http://localhost:${config.port}/api/v1/health`);
       console.log('----------------------------------------------------');
     });
+
+    // 3. Connect to MongoDB Atlas with background retry on transient network/TLS failures
+    try {
+      await connectDB();
+    } catch (dbErr) {
+      console.error('⚠️  Initial MongoDB Atlas connection attempt failed:');
+      console.error(`   Reason: ${dbErr.message}`);
+      if (dbErr.message.includes('SSL alert number 80') || dbErr.message.includes('tlsv1 alert internal error')) {
+        console.error('   👉 ACTION REQUIRED: MongoDB Atlas rejected the TLS connection (SSL alert 80).');
+        console.error('      Please whitelist your current public IP address (or allow 0.0.0.0/0) in MongoDB Atlas Network Access.');
+      } else {
+        console.error('   Action: Verify MONGODB_URI (or MONGO_URI) credentials and Atlas IP whitelist in server/.env');
+      }
+      console.log('⏳ Running in degraded mode: API is online, attempting background reconnection to Atlas every 5s...');
+
+      const retryInterval = setInterval(async () => {
+        try {
+          await connectDB();
+          clearInterval(retryInterval);
+        } catch {
+          // Keep background retry silent
+        }
+      }, 5000);
+    }
   } catch (err) {
-    console.error('----------------------------------------------------');
-    console.error('❌ Server startup aborted due to database connection failure:');
-    console.error(`   Reason: ${err.message}`);
-    console.error('   Action: Verify MONGODB_URI (or MONGO_URI) credentials and Atlas IP whitelist in server/.env');
-    console.error('----------------------------------------------------');
+    console.error('❌ Server startup aborted:', err.message);
     process.exit(1);
   }
 }

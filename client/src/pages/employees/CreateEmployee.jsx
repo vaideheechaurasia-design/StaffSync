@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
+import Icon from '../../components/common/Icon.jsx';
 import { employeeService } from '../../api/employeeService.js';
 import { departmentService } from '../../api/departmentService.js';
 
@@ -60,29 +61,29 @@ export const CreateEmployee = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Client-side validations
-    if (!formData.firstName.trim() || !formData.lastName.trim()) {
-      setErrorMessage('Please provide both First Name and Last Name.');
+    // Frontend validation
+    if (!formData.email || !formData.email.trim()) {
+      setErrorMessage('Work email is mandatory.');
       return;
     }
-
-    if (!formData.email.trim()) {
-      setErrorMessage('Please provide a valid work email address.');
-      return;
-    }
-
     if (!formData.password || formData.password.length < 8) {
-      setErrorMessage('Password must be at least 8 characters long.');
+      setErrorMessage('Temporary password must be at least 8 characters long.');
       return;
     }
-
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setErrorMessage('First and last names are mandatory.');
+      return;
+    }
     if (!formData.employeeCode.trim()) {
-      setErrorMessage('Please provide a unique Employee Code (e.g. EMP-1002).');
+      setErrorMessage('Employee code is mandatory (e.g. EMP-1004).');
       return;
     }
-
     if (!formData.designation.trim()) {
-      setErrorMessage('Please provide a job title / designation.');
+      setErrorMessage('Official designation / job title is mandatory.');
+      return;
+    }
+    if (!formData.departmentId) {
+      setErrorMessage('Please assign a department.');
       return;
     }
 
@@ -91,17 +92,17 @@ export const CreateEmployee = () => {
 
     try {
       const payload = {
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        email: formData.email.trim().toLowerCase(),
         password: formData.password,
         role: formData.role,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phone: formData.phone.trim(),
         employeeCode: formData.employeeCode.trim().toUpperCase(),
         departmentId: formData.departmentId,
         designation: formData.designation.trim(),
         employmentType: formData.employmentType,
         dateOfJoining: formData.dateOfJoining,
-        phone: formData.phone.trim(),
         emergencyContact: {
           name: formData.emergencyContactName.trim(),
           relationship: formData.emergencyContactRelationship.trim(),
@@ -109,12 +110,9 @@ export const CreateEmployee = () => {
         }
       };
 
-      const response = await employeeService.create(payload);
-
-      if (response && response.success) {
+      const res = await employeeService.create(payload);
+      if (res && res.data) {
         navigate('/employees', { replace: true });
-      } else {
-        throw new Error(response?.message || 'Employee creation failed.');
       }
     } catch (err) {
       setErrorMessage(err.message || 'Failed to onboard employee. Please check inputs.');
@@ -134,27 +132,33 @@ export const CreateEmployee = () => {
         ]}
         actionButton={
           <Link to="/employees" className="btn btn-outline-secondary btn-sm">
-            Cancel
+            <Icon name="arrow-left" size={14} />
+            <span>Cancel</span>
           </Link>
         }
       />
 
       {/* Error Banner */}
       {errorMessage && (
-        <div className="alert alert-danger mb-4 shadow-sm" role="alert">
-          <strong>Validation Error:</strong> {errorMessage}
+        <div className="alert alert-danger mb-4 shadow-sm d-flex align-items-center gap-2" role="alert">
+          <Icon name="alert-circle" size={18} />
+          <div>{errorMessage}</div>
         </div>
       )}
 
-      <div className="ss-card p-4 shadow-sm">
+      <div className="ss-card p-4 p-md-5 shadow-sm">
         <form onSubmit={handleSubmit} noValidate>
           {/* Section 1: User Account Credentials */}
-          <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
-            1. User Account Credentials
-          </h2>
+          <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+            <Icon name="shield" size={18} color="#4F46E5" />
+            <h2 className="h6 fw-bold mb-0 text-uppercase text-dark">
+              1. User Account Credentials
+            </h2>
+          </div>
+
           <div className="row g-3 mb-4">
             <div className="col-md-6">
-              <label htmlFor="field-email" className="form-label small fw-semibold">
+              <label htmlFor="field-email" className="form-label">
                 Work Email <span className="text-danger">*</span>
               </label>
               <input
@@ -169,7 +173,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-3">
-              <label htmlFor="field-password" className="form-label small fw-semibold">
+              <label htmlFor="field-password" className="form-label">
                 Temporary Password <span className="text-danger">*</span>
               </label>
               <input
@@ -184,7 +188,7 @@ export const CreateEmployee = () => {
               <div className="form-text" style={{ fontSize: '0.75rem' }}>Min 8 characters</div>
             </div>
             <div className="col-md-3">
-              <label htmlFor="field-role" className="form-label small fw-semibold">
+              <label htmlFor="field-role" className="form-label">
                 System Role <span className="text-danger">*</span>
               </label>
               <select
@@ -202,12 +206,16 @@ export const CreateEmployee = () => {
           </div>
 
           {/* Section 2: Personal & Emergency Details */}
-          <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
-            2. Personal & Emergency Details
-          </h2>
+          <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+            <Icon name="user" size={18} color="#4F46E5" />
+            <h2 className="h6 fw-bold mb-0 text-uppercase text-dark">
+              2. Personal & Emergency Details
+            </h2>
+          </div>
+
           <div className="row g-3 mb-4">
             <div className="col-md-4">
-              <label htmlFor="field-first-name" className="form-label small fw-semibold">
+              <label htmlFor="field-first-name" className="form-label">
                 First Name <span className="text-danger">*</span>
               </label>
               <input
@@ -222,7 +230,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-4">
-              <label htmlFor="field-last-name" className="form-label small fw-semibold">
+              <label htmlFor="field-last-name" className="form-label">
                 Last Name <span className="text-danger">*</span>
               </label>
               <input
@@ -237,7 +245,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-4">
-              <label htmlFor="field-phone" className="form-label small fw-semibold">
+              <label htmlFor="field-phone" className="form-label">
                 Phone Number
               </label>
               <input
@@ -252,7 +260,7 @@ export const CreateEmployee = () => {
             </div>
 
             <div className="col-md-4">
-              <label htmlFor="field-emergency-name" className="form-label small fw-semibold">
+              <label htmlFor="field-emergency-name" className="form-label">
                 Emergency Contact Name
               </label>
               <input
@@ -266,7 +274,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-4">
-              <label htmlFor="field-emergency-relationship" className="form-label small fw-semibold">
+              <label htmlFor="field-emergency-relationship" className="form-label">
                 Relationship
               </label>
               <input
@@ -280,7 +288,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-4">
-              <label htmlFor="field-emergency-phone" className="form-label small fw-semibold">
+              <label htmlFor="field-emergency-phone" className="form-label">
                 Emergency Contact Phone
               </label>
               <input
@@ -296,12 +304,16 @@ export const CreateEmployee = () => {
           </div>
 
           {/* Section 3: Department & Job Alignment */}
-          <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
-            3. Department & Job Alignment
-          </h2>
+          <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+            <Icon name="building" size={18} color="#4F46E5" />
+            <h2 className="h6 fw-bold mb-0 text-uppercase text-dark">
+              3. Department & Job Alignment
+            </h2>
+          </div>
+
           <div className="row g-3 mb-4">
             <div className="col-md-3">
-              <label htmlFor="field-code" className="form-label small fw-semibold">
+              <label htmlFor="field-code" className="form-label">
                 Employee Code <span className="text-danger">*</span>
               </label>
               <input
@@ -316,7 +328,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-3">
-              <label htmlFor="field-dept" className="form-label small fw-semibold">
+              <label htmlFor="field-dept" className="form-label">
                 Department <span className="text-danger">*</span>
               </label>
               <select
@@ -340,7 +352,7 @@ export const CreateEmployee = () => {
               </select>
             </div>
             <div className="col-md-3">
-              <label htmlFor="field-designation" className="form-label small fw-semibold">
+              <label htmlFor="field-designation" className="form-label">
                 Designation / Title <span className="text-danger">*</span>
               </label>
               <input
@@ -355,7 +367,7 @@ export const CreateEmployee = () => {
               />
             </div>
             <div className="col-md-3">
-              <label htmlFor="field-type" className="form-label small fw-semibold">
+              <label htmlFor="field-type" className="form-label">
                 Employment Type
               </label>
               <select
@@ -379,7 +391,7 @@ export const CreateEmployee = () => {
             </Link>
             <button
               type="submit"
-              className="btn btn-accent d-flex align-items-center gap-2"
+              className="btn btn-accent px-4 shadow-sm"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -388,7 +400,10 @@ export const CreateEmployee = () => {
                   <span>Onboarding Staff Member...</span>
                 </>
               ) : (
-                <span>Save & Onboard Employee</span>
+                <>
+                  <Icon name="user-plus" size={16} />
+                  <span>Save & Onboard Employee</span>
+                </>
               )}
             </button>
           </div>

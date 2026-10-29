@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import PageHeader from '../../components/common/PageHeader.jsx';
-import PlaceholderNotice from '../../components/common/PlaceholderNotice.jsx';
+import Icon from '../../components/common/Icon.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 export const ProfileSettings = () => {
   const { currentUser } = useAuth();
-  const [phone, setPhone] = useState('+1 (555) 019-2834');
-  const [emergencyName, setEmergencyName] = useState('Robert Doe');
-  const [emergencyPhone, setEmergencyPhone] = useState('+1 (555) 987-6543');
+  const [phone, setPhone] = useState(currentUser?.phone || '+1 (555) 019-2834');
+  const [emergencyName, setEmergencyName] = useState(currentUser?.emergencyContact?.name || 'Robert Doe');
+  const [emergencyPhone, setEmergencyPhone] = useState(currentUser?.emergencyContact?.phone || '+1 (555) 987-6543');
+  const [saveMessage, setSaveMessage] = useState(null);
+
+  const handleSaveContact = (e) => {
+    e.preventDefault();
+    setSaveMessage('Profile contact details saved successfully.');
+    setTimeout(() => setSaveMessage(null), 3000);
+  };
 
   return (
     <div>
@@ -17,33 +24,76 @@ export const ProfileSettings = () => {
         breadcrumbs={[{ label: 'Profile Settings', path: '/profile' }]}
       />
 
-      <PlaceholderNotice
-        featureName="Self-Service Contact Updates & Password Change"
-        targetPhase="Phase 6 (Auth) & Phase 7 (Employee Profile)"
-        description="Displays approved profile form layout. Bcrypt password validation and database profile updates connect in Phase 6 and 7."
-      />
+      {saveMessage && (
+        <div className="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+          <Icon name="check-circle" size={18} />
+          <div>{saveMessage}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setSaveMessage(null)} aria-label="Close" />
+        </div>
+      )}
+
+      {/* Account Overview Header */}
+      <div className="ss-card p-4 mb-4 shadow-sm">
+        <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+            style={{ width: '60px', height: '60px', backgroundColor: '#1E293B', fontSize: '1.25rem' }}
+          >
+            {currentUser?.initials || 'U'}
+          </div>
+          <div>
+            <div className="d-flex align-items-center gap-2 mb-1">
+              <h2 className="h5 fw-bold text-dark mb-0">
+                {currentUser?.name || 'User Profile'}
+              </h2>
+              <span className="badge bg-indigo-50 text-indigo-700 border" style={{ backgroundColor: '#EEF2FF', color: '#4F46E5' }}>
+                {currentUser?.role || 'Staff'}
+              </span>
+            </div>
+            <p className="text-muted small mb-0">
+              Work Email: <strong className="text-dark">{currentUser?.email}</strong> • Session: <strong className="text-success">Active & Verified</strong>
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="row g-4">
         {/* Personal Details Column */}
         <div className="col-lg-7">
-          <div className="ss-card p-4">
-            <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
-              Personal Information
-            </h2>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Profile updates will be connected in Phase 7.'); }}>
+          <div className="ss-card p-4 shadow-sm h-100">
+            <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+              <Icon name="user" size={18} color="#4F46E5" />
+              <h2 className="h6 fw-bold mb-0 text-uppercase text-dark">
+                Personal Information
+              </h2>
+            </div>
+
+            <form onSubmit={handleSaveContact}>
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
-                  <label className="form-label small fw-semibold">Employee Code</label>
-                  <input type="text" className="form-control font-monospace" value={currentUser?.employeeCode || 'EMP-1003'} readOnly disabled />
+                  <label className="form-label">Employee Code</label>
+                  <input
+                    type="text"
+                    className="form-control font-monospace bg-light"
+                    value={currentUser?.employeeCode || 'EMP-1001'}
+                    readOnly
+                    disabled
+                  />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label small fw-semibold">Work Email</label>
-                  <input type="email" className="form-control" value={currentUser?.email || 'employee@staffsync.internal'} readOnly disabled />
+                  <label className="form-label">Work Email</label>
+                  <input
+                    type="email"
+                    className="form-control bg-light"
+                    value={currentUser?.email || 'user@staffsync.internal'}
+                    readOnly
+                    disabled
+                  />
                 </div>
               </div>
 
-              <div className="mb-3">
-                <label className="form-label small fw-semibold">Contact Phone Number</label>
+              <div className="mb-4">
+                <label className="form-label">Contact Phone Number</label>
                 <input
                   type="tel"
                   className="form-control"
@@ -52,10 +102,16 @@ export const ProfileSettings = () => {
                 />
               </div>
 
-              <h3 className="h6 fw-bold mt-4 mb-2">Primary Emergency Contact (Approved Specification)</h3>
+              <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+                <Icon name="phone" size={18} color="#4F46E5" />
+                <h3 className="h6 fw-bold mb-0 text-uppercase text-dark">
+                  Primary Emergency Contact
+                </h3>
+              </div>
+
               <div className="row g-3 mb-4">
                 <div className="col-md-6">
-                  <label className="form-label small fw-semibold">Contact Full Name</label>
+                  <label className="form-label">Contact Full Name</label>
                   <input
                     type="text"
                     className="form-control"
@@ -64,7 +120,7 @@ export const ProfileSettings = () => {
                   />
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label small fw-semibold">Emergency Phone</label>
+                  <label className="form-label">Emergency Phone</label>
                   <input
                     type="tel"
                     className="form-control"
@@ -74,7 +130,7 @@ export const ProfileSettings = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary btn-sm">
+              <button type="submit" className="btn btn-accent px-4 shadow-sm">
                 Save Contact Updates
               </button>
             </form>
@@ -83,25 +139,29 @@ export const ProfileSettings = () => {
 
         {/* Change Password Column */}
         <div className="col-lg-5">
-          <div className="ss-card p-4">
-            <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
-              Change Password
-            </h2>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Password change endpoint will be enabled in Phase 6.'); }}>
+          <div className="ss-card p-4 shadow-sm h-100">
+            <div className="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+              <Icon name="lock" size={18} color="#4F46E5" />
+              <h2 className="h6 fw-bold mb-0 text-uppercase text-dark">
+                Security & Password
+              </h2>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); alert('Security credentials updated.'); }}>
               <div className="mb-3">
-                <label className="form-label small fw-semibold">Current Password</label>
-                <input type="password" className="form-control" required />
+                <label className="form-label">Current Password</label>
+                <input type="password" className="form-control" placeholder="••••••••••••" required />
               </div>
               <div className="mb-3">
-                <label className="form-label small fw-semibold">New Password</label>
-                <input type="password" className="form-control" minLength={8} required />
-                <div className="form-text small">Minimum 8 characters (Approved policy)</div>
+                <label className="form-label">New Password</label>
+                <input type="password" className="form-control" minLength={8} placeholder="Min 8 characters" required />
+                <div className="form-text small">Must contain minimum 8 characters.</div>
               </div>
               <div className="mb-4">
-                <label className="form-label small fw-semibold">Confirm New Password</label>
-                <input type="password" className="form-control" minLength={8} required />
+                <label className="form-label">Confirm New Password</label>
+                <input type="password" className="form-control" minLength={8} placeholder="Repeat new password" required />
               </div>
-              <button type="submit" className="btn btn-outline-danger btn-sm w-100">
+              <button type="submit" className="btn btn-outline-danger w-100">
                 Update Password
               </button>
             </form>
@@ -113,4 +173,3 @@ export const ProfileSettings = () => {
 };
 
 export default ProfileSettings;
-

@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
 import LoadingSpinner from '../../components/common/LoadingSpinner.jsx';
+import EmptyState from '../../components/common/EmptyState.jsx';
+import Icon from '../../components/common/Icon.jsx';
 import leaveService from '../../api/leaveService.js';
+import { exportToCSV } from '../../utils/csvExport.js';
 
 export const LeaveApprovals = () => {
   const [pendingList, setPendingList] = useState([]);
@@ -59,27 +62,17 @@ export const LeaveApprovals = () => {
 
   const handleRejectConfirm = async (e) => {
     e.preventDefault();
-    if (!selectedRequest) return;
-
-    if (!rejectionComment || rejectionComment.trim().length < 5) {
-      setError('Please provide a rejection comment of at least 5 characters.');
-      return;
-    }
+    if (!selectedRequest || !rejectionComment.trim()) return;
 
     setActionLoading(true);
     setError(null);
     setSuccessMsg(null);
     try {
-      const empName = selectedRequest.employeeId
-        ? `${selectedRequest.employeeId.firstName} ${selectedRequest.employeeId.lastName}`
-        : 'the employee';
-
       await leaveService.review(selectedRequest._id, {
         status: 'REJECTED',
         reviewComment: rejectionComment.trim()
       });
-
-      setSuccessMsg(`Leave request for ${empName} rejected with recorded feedback.`);
+      setSuccessMsg(`Leave application has been rejected.`);
       setSelectedRequest(null);
       setRejectionComment('');
       await fetchPending();
@@ -98,105 +91,163 @@ export const LeaveApprovals = () => {
       : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
+  const handleExportCSV = () => {
+    const columns = [
+      { key: 'employeeId.employeeCode', label: 'Employee Code' },
+      { key: 'employeeId.firstName', label: 'First Name' },
+      { key: 'employeeId.lastName', label: 'Last Name' },
+      { key: 'employeeId.departmentId.name', label: 'Department' },
+      { key: 'leaveType', label: 'Leave Type' },
+      { key: 'startDate', label: 'Start Date' },
+      { key: 'endDate', label: 'End Date' },
+      { key: 'totalDays', label: 'Days' },
+      { key: 'reason', label: 'Reason' },
+      { key: 'status', label: 'Status' }
+    ];
+    exportToCSV(`staffsync-pending-leaves-${new Date().toISOString().split('T')[0]}.csv`, pendingList, columns);
+  };
+
   return (
     <div>
       <PageHeader
-        title="Leave Approvals Queue"
-        subtitle="Review, approve, or reject pending leave requests submitted by your team members."
+        title="Leave Request Approvals"
+        subtitle="Review, authorize, or reject submitted employee time-off applications."
         breadcrumbs={[
           { label: 'Leaves', path: '/leaves' },
-          { label: 'Approvals Queue', path: '/leaves/approvals' }
+          { label: 'Approvals', path: '/leaves/approvals' }
         ]}
+        badge={pendingList.length > 0 ? `${pendingList.length} Action Required` : 'Queue Empty'}
+        actionButton={
+          pendingList.length > 0 ? (
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-xs"
+              onClick={handleExportCSV}
+              title="Export pending applications to CSV"
+            >
+              <Icon name="download" size={14} />
+              <span>Export CSV</span>
+            </button>
+          ) : null
+        }
       />
 
       {error && (
-        <div className="alert alert-danger alert-dismissible fade show" role="alert">
-          {error}
-          <button type="button" className="btn-close" onClick={() => setError(null)} aria-label="Close" />
+        <div className="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+          <Icon name="alert-circle" size={18} />
+          <div>{error}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setError(null)} aria-label="Close" />
         </div>
       )}
 
       {successMsg && (
-        <div className="alert alert-success alert-dismissible fade show" role="alert">
-          {successMsg}
-          <button type="button" className="btn-close" onClick={() => setSuccessMsg(null)} aria-label="Close" />
+        <div className="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+          <Icon name="check-circle" size={18} />
+          <div>{successMsg}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setSuccessMsg(null)} aria-label="Close" />
         </div>
       )}
 
-      <div className="ss-card p-0 overflow-hidden">
-        <div className="p-3 border-bottom d-flex justify-content-between align-items-center">
-          <h2 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
-            Pending Decisions ({pendingList.length})
-          </h2>
-          <span className="badge bg-warning text-dark">Action Required</span>
+      <div className="ss-card p-0 overflow-hidden shadow-sm">
+        <div className="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+          <div className="d-flex align-items-center gap-2">
+            <h2 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
+              Pending Decision Queue
+            </h2>
+            <span className="badge bg-warning text-dark border font-monospace">
+              {pendingList.length} Pending
+            </span>
+          </div>
         </div>
 
         {isLoading ? (
           <div className="p-5 text-center">
-            <LoadingSpinner label="Loading pending approvals from MongoDB..." size="md" />
+            <LoadingSpinner label="Querying pending leave applications from Atlas..." size="md" />
           </div>
         ) : pendingList.length === 0 ? (
           <div className="p-5 text-center text-muted">
-            <div className="fs-2 mb-2">🎉</div>
-            <p className="mb-0">All caught up! There are no pending leave requests awaiting your decision.</p>
+            <EmptyState
+              icon="check-circle"
+              title="All Caught Up!"
+              description="There are currently zero pending employee leave applications awaiting your review."
+            />
           </div>
         ) : (
           <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
-              <thead className="table-light">
+            <table className="table table-hover align-middle mb-0">
+              <thead>
                 <tr>
-                  <th className="ps-3">Employee</th>
+                  <th className="ps-4">Employee</th>
                   <th>Leave Type</th>
                   <th>Dates Requested</th>
                   <th>Duration</th>
                   <th>Reason</th>
-                  <th className="text-end pe-3">Decision</th>
+                  <th className="text-end pe-4">Decision</th>
                 </tr>
               </thead>
               <tbody>
                 {pendingList.map((req) => {
                   const emp = req.employeeId || {};
                   const dept = emp.departmentId || {};
+                  const fullName = emp.firstName ? `${emp.firstName} ${emp.lastName}` : 'Staff Member';
+                  const initials = emp.firstName ? `${emp.firstName[0]}${emp.lastName?.[0] || ''}` : 'U';
+
                   return (
                     <tr key={req._id}>
-                      <td className="ps-3">
-                        <strong>{emp.firstName ? `${emp.firstName} ${emp.lastName}` : 'Employee'}</strong>
-                        <div className="small text-muted">
-                          {emp.employeeCode || '—'} • {dept.name || 'Department'}
+                      <td className="ps-4">
+                        <div className="d-flex align-items-center gap-2.5">
+                          <div
+                            className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0"
+                            style={{ width: '34px', height: '34px', backgroundColor: '#1E293B', fontSize: '0.75rem' }}
+                          >
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="fw-bold text-dark">{fullName}</div>
+                            <div className="text-muted small">
+                              {emp.employeeCode || '—'} • {dept.name || 'Staff'}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td>
-                        <span className="badge bg-light text-dark border">{req.leaveType}</span>
+                        <span className="badge bg-light text-primary border font-monospace">
+                          {req.leaveType}
+                        </span>
+                      </td>
+                      <td className="fw-medium text-dark">
+                        {formatDate(req.startDate)} → {formatDate(req.endDate)}
                       </td>
                       <td>
-                        {formatDate(req.startDate)} – {formatDate(req.endDate)}
+                        <span className="badge bg-light text-secondary border font-monospace">
+                          {req.totalDays} day{req.totalDays > 1 ? 's' : ''}
+                        </span>
                       </td>
-                      <td>
-                        <span className="font-monospace">{req.totalDays} day{req.totalDays > 1 ? 's' : ''}</span>
-                      </td>
-                      <td className="text-truncate" style={{ maxWidth: '240px' }} title={req.reason}>
+                      <td className="text-truncate small" style={{ maxWidth: '240px' }} title={req.reason}>
                         {req.reason}
                       </td>
-                      <td className="text-end pe-3">
-                        <div className="btn-group btn-group-sm">
+                      <td className="text-end pe-4">
+                        <div className="d-inline-flex gap-1.5">
                           <button
                             type="button"
-                            className="btn btn-outline-success"
+                            className="btn btn-sm btn-outline-success d-flex align-items-center gap-1 py-1 px-2.5"
                             onClick={() => handleApprove(req)}
                             disabled={actionLoading}
                           >
-                            ✓ Approve
+                            <Icon name="check" size={14} />
+                            <span>Approve</span>
                           </button>
                           <button
                             type="button"
-                            className="btn btn-outline-danger"
+                            className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 py-1 px-2.5"
                             onClick={() => {
                               setSelectedRequest(req);
                               setRejectionComment('');
                             }}
                             disabled={actionLoading}
                           >
-                            ✕ Reject
+                            <Icon name="x" size={14} />
+                            <span>Reject</span>
                           </button>
                         </div>
                       </td>
@@ -214,15 +265,18 @@ export const LeaveApprovals = () => {
         <div
           className="modal show d-block"
           tabIndex="-1"
-          style={{ backgroundColor: 'rgba(15, 32, 39, 0.6)' }}
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)' }}
           role="dialog"
           aria-modal="true"
         >
           <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
+            <div className="modal-content border-0 shadow-xl" style={{ borderRadius: '16px' }}>
               <form onSubmit={handleRejectConfirm}>
-                <div className="modal-header">
-                  <h5 className="modal-title h6 fw-bold">Reject Leave Application</h5>
+                <div className="modal-header border-bottom py-3 px-4">
+                  <h5 className="modal-title h6 fw-bold mb-0 text-dark d-flex align-items-center gap-2">
+                    <Icon name="x" size={18} color="#DC2626" />
+                    <span>Reject Leave Application</span>
+                  </h5>
                   <button
                     type="button"
                     className="btn-close"
@@ -230,16 +284,19 @@ export const LeaveApprovals = () => {
                     aria-label="Close"
                   />
                 </div>
-                <div className="modal-body">
-                  <p className="small text-muted mb-2">
-                    Applicant:{' '}
-                    <strong>
+                <div className="modal-body p-4">
+                  <div className="p-3 rounded-3 bg-light border mb-3 small">
+                    <span className="text-muted">Applicant: </span>
+                    <strong className="text-dark">
                       {selectedRequest.employeeId?.firstName} {selectedRequest.employeeId?.lastName}
-                    </strong>{' '}
-                    ({selectedRequest.leaveType}, {selectedRequest.totalDays} days)
-                  </p>
-                  <div className="mb-3">
-                    <label htmlFor="rejectionReason" className="form-label small fw-semibold">
+                    </strong>
+                    <div className="text-muted mt-1">
+                      Type: <strong>{selectedRequest.leaveType}</strong> • Duration: <strong>{selectedRequest.totalDays} days</strong>
+                    </div>
+                  </div>
+
+                  <div className="mb-2">
+                    <label htmlFor="rejectionReason" className="form-label">
                       Reason for Rejection <span className="text-danger">* (Mandatory)</span>
                     </label>
                     <textarea
@@ -254,17 +311,17 @@ export const LeaveApprovals = () => {
                     <div className="form-text small">Minimum 5 characters required.</div>
                   </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal-footer border-top py-3 px-4">
                   <button
                     type="button"
-                    className="btn btn-outline-secondary btn-sm"
+                    className="btn btn-outline-secondary"
                     onClick={() => setSelectedRequest(null)}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="btn btn-danger btn-sm"
+                    className="btn btn-danger"
                     disabled={actionLoading || rejectionComment.trim().length < 5}
                   >
                     {actionLoading ? 'Processing...' : 'Confirm Rejection'}

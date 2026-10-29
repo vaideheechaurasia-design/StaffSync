@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import StatusBadge from '../../components/common/StatusBadge.jsx';
 import LoadingSpinner from '../../components/common/LoadingSpinner.jsx';
+import EmptyState from '../../components/common/EmptyState.jsx';
+import SummaryCard from '../../components/common/SummaryCard.jsx';
+import Icon from '../../components/common/Icon.jsx';
 import leaveService from '../../api/leaveService.js';
+import { exportToCSV } from '../../utils/csvExport.js';
 
 export const LeaveCenter = () => {
   const [requests, setRequests] = useState([]);
@@ -71,6 +75,19 @@ export const LeaveCenter = () => {
       : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
+  const handleExportCSV = () => {
+    const columns = [
+      { key: 'leaveType', label: 'Leave Type' },
+      { key: 'startDate', label: 'Start Date' },
+      { key: 'endDate', label: 'End Date' },
+      { key: 'totalDays', label: 'Duration (Days)' },
+      { key: 'status', label: 'Status' },
+      { key: 'reason', label: 'Reason' },
+      { key: 'reviewComment', label: 'Manager Feedback' }
+    ];
+    exportToCSV(`staffsync-my-leaves-${new Date().toISOString().split('T')[0]}.csv`, requests, columns);
+  };
+
   return (
     <div>
       <PageHeader
@@ -78,72 +95,89 @@ export const LeaveCenter = () => {
         subtitle="Track your remaining paid time off balances, review active applications, and browse leave history."
         breadcrumbs={[{ label: 'Leaves', path: '/leaves' }]}
         actionButton={
-          <Link to="/leaves/apply" className="btn btn-accent btn-sm">
-            ➕ Apply for Leave
-          </Link>
+          <div className="d-flex align-items-center gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-xs"
+              onClick={handleExportCSV}
+              disabled={requests.length === 0}
+              title="Download leave records as CSV"
+            >
+              <Icon name="download" size={14} />
+              <span>Export CSV</span>
+            </button>
+            <Link to="/leaves/apply" className="btn btn-accent btn-sm shadow-sm d-flex align-items-center gap-1.5">
+              <Icon name="plus" size={16} />
+              <span>Apply for Leave</span>
+            </Link>
+          </div>
         }
       />
 
       {error && (
-        <div className="alert alert-danger alert-dismissible fade show" role="alert">
-          {error}
-          <button type="button" className="btn-close" onClick={() => setError(null)} aria-label="Close" />
+        <div className="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+          <Icon name="alert-circle" size={18} />
+          <div>{error}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setError(null)} aria-label="Close" />
         </div>
       )}
 
       {successMsg && (
-        <div className="alert alert-success alert-dismissible fade show" role="alert">
-          {successMsg}
-          <button type="button" className="btn-close" onClick={() => setSuccessMsg(null)} aria-label="Close" />
+        <div className="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
+          <Icon name="check-circle" size={18} />
+          <div>{successMsg}</div>
+          <button type="button" className="btn-close ms-auto" onClick={() => setSuccessMsg(null)} aria-label="Close" />
         </div>
       )}
 
       {/* Quota Balance Cards */}
       <div className="row g-3 mb-4">
         <div className="col-6 col-md-3">
-          <div className="ss-card p-3 text-center border-start border-4 border-primary">
-            <span className="small text-muted d-block fw-semibold text-uppercase">Annual Leave</span>
-            <span className="fs-3 fw-bold text-primary">
-              {(balance.annual?.quota || 15) - (balance.annual?.used || 0)}
-            </span>
-            <span className="small text-muted d-block">{balance.annual?.quota || 15} total allocated</span>
-          </div>
+          <SummaryCard
+            label="Annual Leave"
+            value={String((balance.annual?.quota || 15) - (balance.annual?.used || 0))}
+            icon="calendar"
+            variant="indigo"
+            changeText={`of ${balance.annual?.quota || 15} days quota`}
+          />
         </div>
         <div className="col-6 col-md-3">
-          <div className="ss-card p-3 text-center border-start border-4 border-success">
-            <span className="small text-muted d-block fw-semibold text-uppercase">Casual Leave</span>
-            <span className="fs-3 fw-bold text-success">
-              {(balance.casual?.quota || 10) - (balance.casual?.used || 0)}
-            </span>
-            <span className="small text-muted d-block">{balance.casual?.quota || 10} total allocated</span>
-          </div>
+          <SummaryCard
+            label="Casual Leave"
+            value={String((balance.casual?.quota || 10) - (balance.casual?.used || 0))}
+            icon="clock"
+            variant="emerald"
+            changeText={`of ${balance.casual?.quota || 10} days quota`}
+          />
         </div>
         <div className="col-6 col-md-3">
-          <div className="ss-card p-3 text-center border-start border-4 border-warning">
-            <span className="small text-muted d-block fw-semibold text-uppercase">Sick Leave</span>
-            <span className="fs-3 fw-bold text-warning">
-              {(balance.sick?.quota || 10) - (balance.sick?.used || 0)}
-            </span>
-            <span className="small text-muted d-block">{balance.sick?.quota || 10} total allocated</span>
-          </div>
+          <SummaryCard
+            label="Sick Leave"
+            value={String((balance.sick?.quota || 10) - (balance.sick?.used || 0))}
+            icon="check-circle"
+            variant="amber"
+            changeText={`of ${balance.sick?.quota || 10} days quota`}
+          />
         </div>
         <div className="col-6 col-md-3">
-          <div className="ss-card p-3 text-center border-start border-4 border-secondary">
-            <span className="small text-muted d-block fw-semibold text-uppercase">Unpaid Leave</span>
-            <span className="fs-3 fw-bold text-secondary">{balance.unpaid?.used || 0}</span>
-            <span className="small text-muted d-block">Days consumed</span>
-          </div>
+          <SummaryCard
+            label="Unpaid Leave"
+            value={String(balance.unpaid?.used || 0)}
+            icon="calendar"
+            variant="blue"
+            changeText="Days consumed"
+          />
         </div>
       </div>
 
       {/* History Table */}
-      <div className="ss-card p-0 overflow-hidden">
-        <div className="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+      <div className="ss-card p-0 overflow-hidden shadow-sm">
+        <div className="p-3 border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 bg-light">
           <h2 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
             My Leave Request History
           </h2>
           <div className="d-flex align-items-center gap-2">
-            <label htmlFor="leaveStatusFilter" className="small text-muted mb-0">Status:</label>
+            <label htmlFor="leaveStatusFilter" className="small text-muted mb-0 fw-semibold">Status:</label>
             <select
               id="leaveStatusFilter"
               className="form-select form-select-sm"
@@ -166,34 +200,41 @@ export const LeaveCenter = () => {
           </div>
         ) : requests.length === 0 ? (
           <div className="p-5 text-center text-muted">
-            <div className="fs-2 mb-2">🏖️</div>
-            <p className="mb-0">No leave applications found. Click "Apply for Leave" above to request time off.</p>
+            <EmptyState
+              icon="calendar"
+              title="No Leave Applications Found"
+              description="No leave applications match your filter. Click 'Apply for Leave' to submit your first request."
+            />
           </div>
         ) : (
           <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.875rem' }}>
-              <thead className="table-light">
+            <table className="table table-hover align-middle mb-0">
+              <thead>
                 <tr>
-                  <th className="ps-3">Leave Type</th>
+                  <th className="ps-4">Leave Type</th>
                   <th>Dates Requested</th>
                   <th>Duration</th>
                   <th>Reason</th>
                   <th>Reviewed By</th>
                   <th>Status</th>
-                  <th className="text-end pe-3">Action</th>
+                  <th className="text-end pe-4">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {requests.map((req) => (
                   <tr key={req._id}>
-                    <td className="ps-3 fw-semibold">
-                      <span className="badge bg-light text-dark border me-1">{req.leaveType}</span>
+                    <td className="ps-4 fw-semibold">
+                      <span className="badge bg-light text-primary border font-monospace me-1">
+                        {req.leaveType}
+                      </span>
+                    </td>
+                    <td className="text-dark fw-medium">
+                      {formatDate(req.startDate)} → {formatDate(req.endDate)}
                     </td>
                     <td>
-                      {formatDate(req.startDate)} – {formatDate(req.endDate)}
-                    </td>
-                    <td>
-                      <span className="font-monospace">{req.totalDays} day{req.totalDays > 1 ? 's' : ''}</span>
+                      <span className="badge bg-light text-secondary border font-monospace">
+                        {req.totalDays} day{req.totalDays > 1 ? 's' : ''}
+                      </span>
                     </td>
                     <td className="text-truncate" style={{ maxWidth: '220px' }} title={req.reason}>
                       {req.reason}
@@ -201,7 +242,7 @@ export const LeaveCenter = () => {
                     <td>
                       {req.reviewedBy ? (
                         <div>
-                          <strong>{req.reviewedBy.name}</strong>
+                          <strong className="text-dark">{req.reviewedBy.name}</strong>
                           {req.reviewComment && (
                             <div className="small text-muted fst-italic" title={req.reviewComment}>
                               "{req.reviewComment}"
@@ -215,11 +256,11 @@ export const LeaveCenter = () => {
                     <td>
                       <StatusBadge status={req.status} />
                     </td>
-                    <td className="text-end pe-3">
+                    <td className="text-end pe-4">
                       {req.status === 'PENDING' && (
                         <button
                           type="button"
-                          className="btn btn-outline-danger btn-sm py-0 px-2"
+                          className="btn btn-outline-danger btn-sm py-1 px-2.5"
                           onClick={() => handleCancel(req._id)}
                           disabled={actionLoading}
                         >

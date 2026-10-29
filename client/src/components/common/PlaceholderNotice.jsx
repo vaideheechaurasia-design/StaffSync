@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from './Icon.jsx';
 
 export const PlaceholderNotice = ({
   featureName,
@@ -9,26 +10,26 @@ export const PlaceholderNotice = ({
     <div
       className="alert d-flex align-items-start gap-3 p-3 mb-4"
       style={{
-        backgroundColor: '#E8F4F8',
-        border: '1px solid #B8E2EC',
-        borderRadius: 'var(--ss-radius-md)',
-        color: '#1A535C'
+        backgroundColor: '#F0F9FF',
+        border: '1px solid #BAE6FD',
+        borderRadius: '12px',
+        color: '#0369A1'
       }}
       role="region"
       aria-label="Phase notice"
     >
-      <div style={{ fontSize: '1.5rem', lineHeight: 1 }} aria-hidden="true">
-        ℹ️
+      <div className="flex-shrink-0 pt-0.5">
+        <Icon name="info" size={20} color="#0284C7" />
       </div>
       <div>
-        <h4 className="h6 fw-bold mb-1">
-          {featureName} — Frontend Foundation Placeholder
+        <h4 className="h6 fw-bold mb-1 text-dark">
+          {featureName} — Architectural Foundation
         </h4>
-        <p className="mb-1" style={{ fontSize: '0.85rem' }}>
-          {description || 'This route has been created and verified as part of Phase 4 (Frontend Foundation). Full business logic, MongoDB persistence, and backend APIs will be activated in later phases.'}
+        <p className="mb-1 text-muted" style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+          {description || 'This route has been created and verified as part of the core frontend architecture. Full business logic, MongoDB persistence, and backend APIs connect in later phases.'}
         </p>
-        <span className="badge bg-secondary" style={{ fontSize: '0.75rem' }}>
-          Scheduled Implementation: {targetPhase}
+        <span className="badge bg-light text-secondary border font-monospace" style={{ fontSize: '0.75rem' }}>
+          Scheduled: {targetPhase}
         </span>
       </div>
     </div>
@@ -36,4 +37,3 @@ export const PlaceholderNotice = ({
 };
 
 export default PlaceholderNotice;
-

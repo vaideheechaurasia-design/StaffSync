@@ -61,6 +61,24 @@ export const attendanceService = {
   },
 
   /**
+   * Retrieves organization-wide attendance records for today (or specified date) (HR_ADMIN only).
+   *
+   * @param {string} [date] - ISO date string YYYY-MM-DD (defaults to current local date)
+   * @returns {Promise<Object>} API response payload { success, data: Attendance[], total }
+   */
+  async getAdminTodayAttendance(date) {
+    let targetDate = date;
+    if (!targetDate) {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      targetDate = `${year}-${month}-${day}`;
+    }
+    return await apiClient.get('/attendance', { params: { date: targetDate, limit: 100 } });
+  },
+
+  /**
    * Manually creates an attendance record (HR_ADMIN only).
    *
    * @param {Object} data - { employeeId, date, checkInTime, checkOutTime, status, notes }

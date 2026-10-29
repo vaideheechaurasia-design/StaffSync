@@ -1,46 +1,84 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import Icon from '../common/Icon.jsx';
 
 export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
-  const { role } = useAuth();
+  const { role, currentUser, logout } = useAuth();
 
-  // Navigation configurations based on approved UI_UX_BLUEPRINT.md Section 2
-  const NAV_ITEMS = {
+  // Categorized navigation groups with modern vector icon identifiers
+  const NAV_SECTIONS = {
     HR_ADMIN: [
-      { label: 'HR Dashboard', path: '/dashboard/hr', icon: '📊' },
-      { label: 'Employees', path: '/employees', icon: '👥' },
-      { label: 'Departments', path: '/departments', icon: '🏢' },
-      { label: 'Company Attendance', path: '/attendance/admin', icon: '⏰' },
-      { label: 'Leave Approvals', path: '/leaves/approvals', icon: '📬' },
-      { label: 'Announcements', path: '/announcements', icon: '📢' },
-      { label: 'Training Programs', path: '/training', icon: '🎓' },
-      { label: 'HR Reports', path: '/reports', icon: '📈' },
-      { label: 'My Personal Portal', path: '/dashboard/employee', icon: '💼' }
+      {
+        title: 'Core Governance',
+        items: [
+          { label: 'HR Executive Dashboard', path: '/dashboard/hr', icon: 'dashboard' },
+          { label: 'Employee Directory', path: '/employees', icon: 'users' },
+          { label: 'Departments', path: '/departments', icon: 'building' },
+          { label: 'Company Attendance', path: '/attendance/admin', icon: 'clock' },
+          { label: 'Leave Approvals', path: '/leaves/approvals', icon: 'inbox' }
+        ]
+      },
+      {
+        title: 'Workforce Operations',
+        items: [
+          { label: 'Announcements', path: '/announcements', icon: 'megaphone' },
+          { label: 'Training Catalog', path: '/training', icon: 'graduation-cap' },
+          { label: 'HR Analytics & Reports', path: '/reports', icon: 'bar-chart' }
+        ]
+      },
+      {
+        title: 'Personal Portal',
+        items: [
+          { label: 'My Self-Service', path: '/dashboard/employee', icon: 'briefcase' },
+          { label: 'My Attendance', path: '/attendance', icon: 'calendar-check' },
+          { label: 'My Leaves', path: '/leaves', icon: 'calendar' }
+        ]
+      }
     ],
     MANAGER: [
-      { label: 'Manager Dashboard', path: '/dashboard/manager', icon: '📊' },
-      { label: 'Team Attendance', path: '/attendance/team', icon: '⏰' },
-      { label: 'Leave Approvals', path: '/leaves/approvals', icon: '📬' },
-      { label: 'Department Staff', path: '/employees', icon: '👥' },
-      { label: 'Departments', path: '/departments', icon: '🏢' },
-      { label: 'My Attendance', path: '/attendance', icon: '⏱️' },
-      { label: 'My Leaves', path: '/leaves', icon: '📅' },
-      { label: 'Announcements', path: '/announcements', icon: '📢' },
-      { label: 'Training Catalog', path: '/training', icon: '🎓' }
+      {
+        title: 'Team Management',
+        items: [
+          { label: 'Manager Dashboard', path: '/dashboard/manager', icon: 'dashboard' },
+          { label: 'Team Attendance', path: '/attendance/team', icon: 'clock' },
+          { label: 'Leave Decisions', path: '/leaves/approvals', icon: 'inbox' },
+          { label: 'Department Staff', path: '/employees', icon: 'users' },
+          { label: 'Departments', path: '/departments', icon: 'building' }
+        ]
+      },
+      {
+        title: 'Personal Space',
+        items: [
+          { label: 'My Attendance', path: '/attendance', icon: 'calendar-check' },
+          { label: 'My Leaves', path: '/leaves', icon: 'calendar' },
+          { label: 'Announcements', path: '/announcements', icon: 'megaphone' },
+          { label: 'Training Programs', path: '/training', icon: 'graduation-cap' }
+        ]
+      }
     ],
     EMPLOYEE: [
-      { label: 'My Dashboard', path: '/dashboard/employee', icon: '📊' },
-      { label: 'Daily Attendance', path: '/attendance', icon: '⏰' },
-      { label: 'My Leaves', path: '/leaves', icon: '📅' },
-      { label: 'Apply for Leave', path: '/leaves/apply', icon: '➕' },
-      { label: 'Staff Directory', path: '/employees', icon: '👥' },
-      { label: 'Announcements', path: '/announcements', icon: '📢' },
-      { label: 'Training Catalog', path: '/training', icon: '🎓' }
+      {
+        title: 'My Workspace',
+        items: [
+          { label: 'Self-Service Dashboard', path: '/dashboard/employee', icon: 'dashboard' },
+          { label: 'Daily Punch & Attendance', path: '/attendance', icon: 'clock' },
+          { label: 'My Leave History', path: '/leaves', icon: 'calendar' },
+          { label: 'Apply for Leave', path: '/leaves/apply', icon: 'plus' }
+        ]
+      },
+      {
+        title: 'Organization',
+        items: [
+          { label: 'Staff Directory', path: '/employees', icon: 'users' },
+          { label: 'Announcements', path: '/announcements', icon: 'megaphone' },
+          { label: 'Training Programs', path: '/training', icon: 'graduation-cap' }
+        ]
+      }
     ]
   };
 
-  const currentNavItems = NAV_ITEMS[role] || NAV_ITEMS.EMPLOYEE;
+  const sections = NAV_SECTIONS[role] || NAV_SECTIONS.EMPLOYEE;
 
   return (
     <>
@@ -63,57 +101,104 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
         style={{ zIndex: 1045 }}
         aria-label="Sidebar Navigation"
       >
-        {/* Mobile Header */}
-        <div className="d-flex justify-content-between align-items-center px-3 mb-3 d-lg-none">
-          <span className="fw-bold" style={{ color: 'var(--ss-color-primary)' }}>
-            Navigation
-          </span>
+        {/* Mobile Header with Close Button */}
+        <div className="d-flex justify-content-between align-items-center px-3 mb-2 d-lg-none">
+          <div className="d-flex align-items-center gap-2">
+            <div
+              className="d-flex align-items-center justify-content-center text-white"
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'var(--ss-color-accent-gradient)'
+              }}
+            >
+              <Icon name="sparkles" size={14} color="#ffffff" />
+            </div>
+            <span className="fw-bold fs-6 text-dark">StaffSync</span>
+          </div>
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-sm btn-outline-secondary p-1"
             onClick={onCloseMobile}
-            aria-label="Close menu"
+            aria-label="Close navigation"
           >
-            ✕
+            <Icon name="x" size={18} />
           </button>
         </div>
 
-        {/* Role Scope Indicator */}
-        <div className="px-3 mb-2">
-          <span className="text-uppercase text-muted fw-bold" style={{ fontSize: '0.7rem', letterSpacing: '0.05em' }}>
-            {role === 'HR_ADMIN' ? 'HR / Admin Portal' : role === 'MANAGER' ? 'Manager Portal' : 'Employee Portal'}
-          </span>
+        {/* Scrollable Navigation Items */}
+        <div className="flex-grow-1 overflow-y-auto">
+          {sections.map((section, sIdx) => (
+            <div key={sIdx} className="mb-3">
+              {!isCollapsed && (
+                <div className="ss-sidebar-section-title">
+                  {section.title}
+                </div>
+              )}
+              <nav className="nav flex-column">
+                {section.items.map((item, idx) => (
+                  <NavLink
+                    key={idx}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      `ss-nav-item ${isActive ? 'active' : ''}`
+                    }
+                    onClick={() => {
+                      if (isMobileOpen && onCloseMobile) onCloseMobile();
+                    }}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <Icon name={item.icon} size={18} />
+                    {!isCollapsed && (
+                      <span className="text-truncate">{item.label}</span>
+                    )}
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
+          ))}
         </div>
 
-        {/* Navigation Items List */}
-        <nav className="flex-grow-1" aria-label="Role Links">
-          <ul className="list-unstyled mb-0">
-            {currentNavItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) => `ss-nav-item ${isActive ? 'active' : ''}`}
-                  onClick={onCloseMobile}
+        {/* Bottom User Account Card */}
+        {currentUser && !isCollapsed && (
+          <div className="px-3 pt-3 mt-auto border-top">
+            <div className="d-flex align-items-center justify-content-between p-2 rounded-3 bg-light border">
+              <div className="d-flex align-items-center gap-2 text-truncate">
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    backgroundColor: '#1E293B',
+                    fontSize: '0.75rem'
+                  }}
                 >
-                  <span aria-hidden="true" style={{ fontSize: '1.1rem' }}>
-                    {item.icon}
-                  </span>
-                  <span>{item.label}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Sidebar Footer Info */}
-        <div className="px-3 pt-3 border-top mt-auto" style={{ fontSize: '0.75rem', color: 'var(--ss-color-text-muted)' }}>
-          <p className="mb-0 fw-semibold">StaffSync HRMS</p>
-          <p className="mb-0">Phase 4 Foundation</p>
-        </div>
+                  {currentUser.initials || `${currentUser.firstName?.[0] || 'U'}`}
+                </div>
+                <div className="text-truncate lh-sm" style={{ maxWidth: '140px' }}>
+                  <div className="fw-semibold text-dark text-truncate" style={{ fontSize: '0.8125rem' }}>
+                    {currentUser.firstName || currentUser.name}
+                  </div>
+                  <div className="text-muted text-truncate" style={{ fontSize: '0.7rem' }}>
+                    {currentUser.role}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary p-1 border-0 text-muted hover-danger"
+                onClick={logout}
+                title="Sign out of StaffSync"
+              >
+                <Icon name="log-out" size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );
 };
 
 export default Sidebar;
-

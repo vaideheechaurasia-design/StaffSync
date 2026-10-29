@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
+import Icon from '../../components/common/Icon.jsx';
 
 export const LoginPage = () => {
   const { login } = useAuth();
@@ -9,6 +10,7 @@ export const LoginPage = () => {
 
   const [email, setEmail] = useState('admin@staffsync.internal');
   const [password, setPassword] = useState('AdminPassword123!');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,102 +37,167 @@ export const LoginPage = () => {
       const destination = location.state?.from?.pathname || '/dashboard';
       navigate(destination, { replace: true });
     } catch (err) {
-      setErrorMessage(err.message || 'Authentication failed. Please verify your credentials.');
+      const rawMsg = err.message || '';
+      if (
+        rawMsg.includes('SSL alert number 80') ||
+        rawMsg.includes('tlsv1 alert internal error') ||
+        rawMsg.includes('MongoServerSelectionError') ||
+        err.statusCode === 503
+      ) {
+        setErrorMessage('Database Connection Alert: MongoDB Atlas rejected the TLS handshake (SSL alert 80). Please ensure your current public IP is whitelisted under Network Access in MongoDB Atlas (or allow 0.0.0.0/0).');
+      } else {
+        setErrorMessage(rawMsg || 'Authentication failed. Please verify your credentials.');
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="card ss-card p-4 p-md-5 text-dark shadow-lg" style={{ maxWidth: '440px', width: '100%' }}>
+    <div
+      className="card ss-card p-4 p-md-5 text-dark shadow-xl"
+      style={{
+        maxWidth: '460px',
+        width: '100%',
+        borderRadius: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        background: '#ffffff'
+      }}
+    >
+      {/* Header */}
       <div className="text-center mb-4">
-        <h1 className="h3 fw-bold mb-1" style={{ color: 'var(--ss-color-primary)' }}>
-          Welcome Back
+        <div
+          className="mx-auto rounded-3 d-flex align-items-center justify-content-center text-white mb-3 shadow"
+          style={{
+            width: '48px',
+            height: '48px',
+            background: 'var(--ss-color-accent-gradient)'
+          }}
+        >
+          <Icon name="sparkles" size={24} color="#ffffff" />
+        </div>
+        <h1 className="h3 fw-bold mb-1" style={{ color: 'var(--ss-color-primary)', letterSpacing: '-0.02em' }}>
+          Welcome to StaffSync
         </h1>
-        <p className="text-muted small">
-          Sign in to your StaffSync organizational portal
+        <p className="text-muted small mb-0">
+          Enterprise Human Resource Management Portal
         </p>
       </div>
 
       {/* Error notification banner */}
       {errorMessage && (
-        <div className="alert alert-danger py-2 px-3 small mb-4" role="alert">
-          <strong>Authentication Error:</strong> {errorMessage}
+        <div className="alert alert-danger py-2.5 px-3 small mb-4 d-flex align-items-center gap-2 border-danger" role="alert">
+          <Icon name="alert-circle" size={18} color="#DC2626" />
+          <div className="flex-grow-1">{errorMessage}</div>
         </div>
       )}
 
-      {/* Capstone Evaluation / Developer Quick-Fill Helper */}
-      <div className="p-2 mb-4 rounded bg-light border" style={{ fontSize: '0.8rem' }}>
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <span className="fw-semibold text-muted text-uppercase" style={{ fontSize: '0.7rem' }}>
-            Capstone Quick-Fill (Form Inputs Only)
+      {/* Quick-fill evaluation helper */}
+      <div className="p-3 mb-4 rounded-3 border bg-light">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <span className="fw-bold text-uppercase text-muted" style={{ fontSize: '0.6875rem', letterSpacing: '0.05em' }}>
+            Demo Account Credentials
           </span>
-          <span className="badge bg-secondary" style={{ fontSize: '0.65rem' }}>
-            Live Backend Auth
+          <span className="badge bg-indigo-50 text-indigo-700 border border-indigo-200" style={{ fontSize: '0.625rem', backgroundColor: '#EEF2FF', color: '#4F46E5' }}>
+            Atlas Live Auth
           </span>
         </div>
-        <div className="d-flex gap-2 mt-1">
+        <div className="d-flex gap-2">
           <button
             type="button"
-            className="btn btn-sm btn-outline-primary flex-fill py-1 px-2"
+            className="btn btn-sm btn-outline-primary flex-fill py-1.5 px-2 d-flex align-items-center justify-content-center gap-1.5"
             style={{ fontSize: '0.75rem' }}
             onClick={() => handleQuickFill('admin@staffsync.internal', 'AdminPassword123!')}
           >
-            HR Admin Seed
+            <Icon name="shield" size={13} />
+            <span>HR Administrator</span>
           </button>
         </div>
       </div>
 
+      {/* Login Form */}
       <form onSubmit={handleSubmit} noValidate>
         <div className="mb-3">
-          <label htmlFor="login-email" className="form-label fw-semibold small">
+          <label htmlFor="login-email" className="form-label">
             Work Email Address
           </label>
-          <input
-            id="login-email"
-            type="email"
-            className="form-control"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="username"
-            disabled={isSubmitting}
-            placeholder="name@company.com"
-          />
+          <div className="input-group">
+            <span className="input-group-text">
+              <Icon name="mail" size={16} color="#64748B" />
+            </span>
+            <input
+              id="login-email"
+              type="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="username"
+              disabled={isSubmitting}
+              placeholder="admin@staffsync.internal"
+            />
+          </div>
         </div>
 
         <div className="mb-4">
-          <label htmlFor="login-password" className="form-label fw-semibold small">
-            Password
-          </label>
-          <input
-            id="login-password"
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            disabled={isSubmitting}
-            placeholder="••••••••"
-          />
+          <div className="d-flex justify-content-between align-items-center mb-1">
+            <label htmlFor="login-password" className="form-label mb-0">
+              Password
+            </label>
+            <span className="text-muted small" style={{ fontSize: '0.75rem' }}>
+              Min 8 characters
+            </span>
+          </div>
+          <div className="input-group">
+            <span className="input-group-text">
+              <Icon name="lock" size={16} color="#64748B" />
+            </span>
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              disabled={isSubmitting}
+              placeholder="••••••••••••"
+            />
+            <button
+              type="button"
+              className="btn btn-outline-secondary border-start-0"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              style={{ backgroundColor: '#F8FAFC' }}
+            >
+              <Icon name={showPassword ? 'eye-off' : 'eye'} size={16} color="#64748B" />
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
-          className="btn btn-accent w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+          className="btn btn-accent w-100 py-2.5 fw-bold shadow-sm"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
             <>
               <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-              <span>Authenticating...</span>
+              <span>Verifying with Atlas...</span>
             </>
           ) : (
-            <span>Sign In to Portal →</span>
+            <>
+              <span>Sign In to StaffSync</span>
+              <Icon name="arrow-right" size={16} />
+            </>
           )}
         </button>
       </form>
+
+      <div className="text-center mt-4 pt-3 border-top text-muted small">
+        <Icon name="lock" size={13} className="me-1 text-muted" />
+        <span>HTTP-Only Secure Cookie Session • Role-Based RBAC</span>
+      </div>
     </div>
   );
 };
