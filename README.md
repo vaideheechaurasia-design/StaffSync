@@ -285,3 +285,6 @@ All architectural specifications are documented inside the [`docs/`](file:///c:/
 14. [**`PROGRESS.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PROGRESS.md) — Detailed task execution tracker for all 15 phases.
 15. [**`PHASE_4_REVIEW.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PHASE_4_REVIEW.md) — Verification audit and test results for Phase 4.
 16. [**`PHASE_5_REVIEW.md`**](file:///c:/Users/Ideapad/OneDrive/Documents/StaffSync/docs/PHASE_5_REVIEW.md) — Verification audit, debugging analysis, and live connection results for Phase 5.
+
+17. Developed by :-
+Vaidehee Chaurasia (Btech CSE)
