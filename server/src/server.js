@@ -10,11 +10,12 @@ async function startServer() {
     validateEnv();
 
     // 2. Start HTTP Server listener first so health check and diagnostics are reachable
-    server = app.listen(config.port, () => {
+    const HOST = process.env.HOST || '0.0.0.0';
+    server = app.listen(config.port, HOST, () => {
       console.log('----------------------------------------------------');
       console.log(`🚀 StaffSync API Server running in [${config.env}] mode`);
-      console.log(`📡 Listening on: http://localhost:${config.port}`);
-      console.log(`🩺 Health check: http://localhost:${config.port}/api/v1/health`);
+      console.log(`📡 Listening on: http://${HOST}:${config.port}`);
+      console.log(`🩺 Health check: http://${HOST}:${config.port}/api/v1/health`);
       console.log('----------------------------------------------------');
     });
 

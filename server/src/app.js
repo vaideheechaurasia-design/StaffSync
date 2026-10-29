@@ -10,20 +10,32 @@ import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
 const app = express();
 
+// Trust reverse proxy (Render, Cloudflare, load balancers)
+app.set('trust proxy', 1);
+
 // Secure HTTP headers
 app.use(helmet());
 
-// CORS configuration for client origin
-const allowedOrigins = [
-  config.clientUrl,
+// CORS configuration for client origin(s)
+const configuredOrigins = (config.clientUrl || '')
+  .split(',')
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+const allowedOrigins = Array.from(new Set([
+  ...configuredOrigins,
   'http://localhost:5173',
   'http://127.0.0.1:5173'
-];
+]));
 
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) {
+      return callback(null, true);
+    }
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    if (allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
     return callback(new Error(`CORS policy restriction: Origin ${origin} not allowed.`));
