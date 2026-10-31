@@ -24,15 +24,15 @@ export const ManageAnnouncements = () => {
 
       <PlaceholderNotice
         featureName="Announcement Authoring & Archival"
-        targetPhase="Phase 10 (Announcements & Training Management)"
-        description="Displays the approved bulletin authoring form and management list. Publishing to MongoDB will be activated in Phase 10."
+        badgeText="Preview"
+        description="Interactive announcement authoring form and management tools. Live distribution will be enabled in the upcoming platform update."
       />
 
       <div className="ss-card p-4">
         <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
           Create New Announcement
         </h2>
-        <form onSubmit={(e) => { e.preventDefault(); alert('Publishing will be enabled in Phase 10.'); }}>
+        <form onSubmit={(e) => { e.preventDefault(); alert('Publishing will be enabled in the upcoming platform update.'); }}>
           <div className="mb-3">
             <label className="form-label small fw-semibold">Title <span className="text-danger">*</span></label>
             <input type="text" className="form-control" placeholder="e.g. Q4 Townhall Meeting Schedule" required />

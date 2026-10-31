@@ -24,15 +24,15 @@ export const ManageTraining = () => {
 
       <PlaceholderNotice
         featureName="Training Administration & Roster Management"
-        targetPhase="Phase 10 (Announcements & Training Management)"
-        description="Displays the approved workshop creation form and attendee roster view. MongoDB persistence connects in Phase 10."
+        badgeText="Preview"
+        description="Workshop scheduling and participant roster management tools. Direct calendar enrollment will be enabled in the upcoming platform update."
       />
 
       <div className="ss-card p-4">
         <h2 className="h6 fw-bold mb-3 text-uppercase text-muted border-bottom pb-2">
           Schedule New Workshop
         </h2>
-        <form onSubmit={(e) => { e.preventDefault(); alert('Session scheduling will be connected in Phase 10.'); }}>
+        <form onSubmit={(e) => { e.preventDefault(); alert('Session scheduling will be enabled in the upcoming platform update.'); }}>
           <div className="row g-3 mb-3">
             <div className="col-md-8">
               <label className="form-label small fw-semibold">Course Title <span className="text-danger">*</span></label>

@@ -66,7 +66,7 @@ export const EmployeeDirectory = () => {
         setEmployees([]);
       }
     } catch (err) {
-      setError(err.message || 'Failed to load employee records from server.');
+      setError(err.message || 'Failed to load employee records.');
       setEmployees([]);
     } finally {
       setIsLoading(false);
@@ -90,7 +90,7 @@ export const EmployeeDirectory = () => {
       await employeeService.deactivate(id);
       await fetchEmployees();
     } catch (err) {
-      alert(`Deactivation failed: ${err.message || 'Server error'}`);
+      alert(`Deactivation failed: ${err.message || 'Unable to complete deactivation'}`);
     } finally {
       setDeactivatingId(null);
     }
@@ -274,7 +274,7 @@ export const EmployeeDirectory = () => {
       {/* Loading state */}
       {isLoading ? (
         <div className="ss-card p-5 text-center my-4">
-          <LoadingSpinner label="Querying employee directory from MongoDB Atlas..." size="md" />
+          <LoadingSpinner label="Loading employee directory..." size="md" />
         </div>
       ) : sortedEmployees.length === 0 ? (
         /* Empty state */

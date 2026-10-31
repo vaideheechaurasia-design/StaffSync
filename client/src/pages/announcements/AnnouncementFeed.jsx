@@ -35,7 +35,7 @@ export const AnnouncementFeed = () => {
       priority: 'HIGH',
       category: 'ALERT',
       date: '1 week ago',
-      author: 'Infrastructure Team',
+      author: 'IT Operations Team',
       content: 'Our internal cloud services will undergo scheduled security updates this Saturday from 02:00 AM to 04:00 AM UTC. Single Sign-On and VPN services will experience intermittent pauses.',
       pinned: false
     }
@@ -59,8 +59,8 @@ export const AnnouncementFeed = () => {
 
       <PlaceholderNotice
         featureName="Announcements & Bulletins Feed"
-        targetPhase="Phase 10 (Announcements & Training Management)"
-        description="Displays approved announcement layout with priority tags. Backend publishing, pinning, and TTL auto-archival will connect in Phase 10."
+        badgeText="Preview"
+        description="View approved organizational announcements with priority tags. Publishing and automatic distribution will be enabled in the upcoming platform update."
       />
 
       <div className="d-flex flex-column gap-3">

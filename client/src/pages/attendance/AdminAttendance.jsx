@@ -155,7 +155,7 @@ export const AdminAttendance = () => {
         notes: modalForm.notes
       });
 
-      setSuccessMsg('Manual attendance record successfully registered in Atlas.');
+      setSuccessMsg('Manual attendance record successfully registered.');
       setShowManualModal(false);
       await loadData(false);
     } catch (err) {
@@ -194,7 +194,7 @@ export const AdminAttendance = () => {
   };
 
   // -------------------------------------------------------------
-  // REAL-TIME METRICS CALCULATIONS (Strictly Atlas Database Data)
+  // REAL-TIME METRICS CALCULATIONS (Live Attendance Data)
   // -------------------------------------------------------------
   const targetDateStr = selectedDate || getTodayLocalDate();
   const targetDateObj = new Date(targetDateStr + 'T12:00:00');
@@ -373,7 +373,7 @@ export const AdminAttendance = () => {
               className="btn btn-outline-secondary btn-sm shadow-xs d-flex align-items-center gap-1.5"
               onClick={() => loadData(false)}
               disabled={isRefreshing}
-              title="Poll latest punch logs from MongoDB Atlas"
+              title="Refresh attendance records"
             >
               <Icon name="refresh" size={14} className={isRefreshing ? 'rotate-animation' : ''} />
               <span>Sync</span>
@@ -458,12 +458,12 @@ export const AdminAttendance = () => {
         <div className="alert alert-warning py-2.5 px-3 mb-3 d-flex align-items-center gap-2 small shadow-2xs" role="status">
           <Icon name="alert-triangle" size={16} color="#D97706" />
           <span>
-            No historical attendance logs recorded in the database for <strong>{targetDateStr}</strong>. Zero retroactive absences are inferred without shift schedule data.
+            No historical attendance logs recorded for <strong>{targetDateStr}</strong>. Zero retroactive absences are inferred without shift schedule data.
           </span>
         </div>
       )}
 
-      {/* 6 Key Real-Time Attendance Metrics (Strictly Atlas Data) */}
+      {/* 6 Key Real-Time Attendance Metrics */}
       <div className="row g-3 mb-4">
         <div className="col-6 col-md-4 col-xl-2">
           <SummaryCard
@@ -634,7 +634,7 @@ export const AdminAttendance = () => {
 
           {isLoading ? (
             <div className="p-5 text-center">
-              <LoadingSpinner label="Fetching live punch logs from MongoDB Atlas..." size="md" />
+              <LoadingSpinner label="Loading live attendance logs..." size="md" />
             </div>
           ) : records.length === 0 ? (
             <div className="p-5 text-center text-muted">

@@ -113,7 +113,7 @@ export const TeamAttendance = () => {
               className="btn btn-outline-secondary btn-sm shadow-xs d-flex align-items-center gap-1.5"
               onClick={() => fetchTeamData(false)}
               disabled={isRefreshing}
-              title="Poll latest team records from Atlas"
+              title="Refresh team records"
             >
               <Icon name="refresh" size={14} className={isRefreshing ? 'rotate-animation' : ''} />
               <span>Sync</span>
@@ -220,7 +220,7 @@ export const TeamAttendance = () => {
 
         {isLoading ? (
           <div className="p-5 text-center">
-            <LoadingSpinner label="Fetching live team punch logs from Atlas..." size="md" />
+            <LoadingSpinner label="Loading team attendance records..." size="md" />
           </div>
         ) : teamRoster.length === 0 ? (
           <div className="p-5 text-center text-muted">

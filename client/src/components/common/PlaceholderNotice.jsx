@@ -3,34 +3,36 @@ import Icon from './Icon.jsx';
 
 export const PlaceholderNotice = ({
   featureName,
-  targetPhase,
+  badgeText = 'Feature Preview',
   description
 }) => {
   return (
     <div
       className="alert d-flex align-items-start gap-3 p-3 mb-4"
       style={{
-        backgroundColor: '#F0F9FF',
-        border: '1px solid #BAE6FD',
+        backgroundColor: '#F8FAFC',
+        border: '1px solid #E2E8F0',
         borderRadius: '12px',
-        color: '#0369A1'
+        color: '#334155'
       }}
       role="region"
-      aria-label="Phase notice"
+      aria-label="Feature notice"
     >
       <div className="flex-shrink-0 pt-0.5">
-        <Icon name="info" size={20} color="#0284C7" />
+        <Icon name="info" size={20} color="#4F46E5" />
       </div>
       <div>
-        <h4 className="h6 fw-bold mb-1 text-dark">
-          {featureName} — Architectural Foundation
-        </h4>
-        <p className="mb-1 text-muted" style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
-          {description || 'This route has been created and verified as part of the core frontend architecture. Full business logic, MongoDB persistence, and backend APIs connect in later phases.'}
+        <div className="d-flex align-items-center gap-2 mb-1">
+          <h4 className="h6 fw-bold mb-0 text-dark">
+            {featureName}
+          </h4>
+          <span className="badge bg-indigo-50 text-indigo-700 border border-indigo-200" style={{ fontSize: '0.6875rem', backgroundColor: '#EEF2FF', color: '#4F46E5' }}>
+            {badgeText}
+          </span>
+        </div>
+        <p className="mb-0 text-muted" style={{ fontSize: '0.875rem', lineHeight: '1.5' }}>
+          {description || 'This module layout is active in preview mode. Automated publishing and management tools will be enabled in the upcoming platform update.'}
         </p>
-        <span className="badge bg-light text-secondary border font-monospace" style={{ fontSize: '0.75rem' }}>
-          Scheduled: {targetPhase}
-        </span>
       </div>
     </div>
   );

@@ -246,7 +246,7 @@ export const Employee3DBadge = ({ employee }) => {
             ))}
           </div>
           <div className="font-monospace text-white-50" style={{ fontSize: '0.625rem', letterSpacing: '0.15em' }}>
-            SECURED CREDENTIAL • MONGO-ATLAS
+            OFFICIAL PERSONNEL IDENTIFICATION • VERIFIED
           </div>
         </div>
       </div>

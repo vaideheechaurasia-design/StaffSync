@@ -128,7 +128,7 @@ export const AttendanceLog = () => {
               className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 shadow-xs"
               onClick={() => fetchAttendanceData(false)}
               disabled={isRefreshing}
-              title="Poll latest punch status from Atlas"
+              title="Refresh attendance records"
             >
               <Icon name="refresh" size={14} className={isRefreshing ? 'rotate-animation' : ''} />
               <span className="d-none d-sm-inline">Sync</span>

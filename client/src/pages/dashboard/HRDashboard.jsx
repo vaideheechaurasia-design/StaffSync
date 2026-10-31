@@ -80,7 +80,7 @@ export const HRDashboard = () => {
       }
     } catch (err) {
       console.error('Error loading HR dashboard analytics:', err);
-      setFetchError(err.message || 'Failed to load organizational analytics from server.');
+      setFetchError(err.message || 'Failed to load organizational analytics.');
     } finally {
       setIsLoading(false);
     }
@@ -230,7 +230,7 @@ export const HRDashboard = () => {
                 {greeting()}, {currentUser?.firstName || currentUser?.name || 'Administrator'}
               </h1>
               <p className="text-white-50 mb-0" style={{ fontSize: '0.9rem' }}>
-                Today is {todayFormatted} • All organizational systems operational and synced with MongoDB Atlas.
+                Today is {todayFormatted} • All organizational systems operational and up to date.
               </p>
             </div>
             <div className="d-flex gap-2">
@@ -266,7 +266,7 @@ export const HRDashboard = () => {
 
       {isLoading ? (
         <div className="ss-card p-5 text-center my-4">
-          <LoadingSpinner label="Fetching live organization metrics from Atlas..." size="md" />
+          <LoadingSpinner label="Loading organization metrics..." size="md" />
         </div>
       ) : (
         <>

@@ -1,27 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { healthService } from '../../api/healthService.js';
 import Icon from '../../components/common/Icon.jsx';
 
 export const LandingPage = () => {
-  const [healthData, setHealthData] = useState(null);
-  const [healthLoading, setHealthLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    healthService.checkHealth()
-      .then((res) => {
-        if (isMounted) {
-          setHealthData(res.data);
-          setHealthLoading(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setHealthLoading(false);
-      });
-    return () => { isMounted = false; };
-  }, []);
-
   const features = [
     {
       title: 'Employee Lifecycle',
@@ -59,8 +40,8 @@ export const LandingPage = () => {
       bg: '#F5F3FF'
     },
     {
-      title: 'Security & Integrity',
-      description: 'Stateless HTTP-only JWT sessions, bcrypt hashing, automated testing, and MongoDB Atlas persistence.',
+      title: 'Enterprise Security',
+      description: 'Role-based access governance, secure encrypted sessions, audit-ready activity trails, and strict data protection.',
       icon: 'lock',
       color: '#0F172A',
       bg: '#F1F5F9'
@@ -75,7 +56,7 @@ export const LandingPage = () => {
           <div className="col-lg-10">
             <div className="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill mb-3 border" style={{ backgroundColor: '#EEF2FF', borderColor: '#C7D2FE', fontSize: '0.8125rem', color: '#4F46E5' }}>
               <Icon name="sparkles" size={15} />
-              <span className="fw-semibold">Enterprise SaaS Edition • Production Ready</span>
+              <span className="fw-semibold">Enterprise Workforce Platform</span>
             </div>
 
             <h1 className="display-4 fw-bold mb-3" style={{ color: 'var(--ss-color-primary)', letterSpacing: '-0.03em', lineHeight: 1.15 }}>
@@ -131,48 +112,73 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Backend API Live Diagnostics Card */}
+      {/* Enterprise Platform Overview Card */}
       <section className="container mb-4">
         <div className="row justify-content-center">
-          <div className="col-lg-9">
-            <div className="ss-card p-4 p-md-5 shadow-sm">
-              <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <div className="d-flex align-items-center gap-2">
-                  <div
-                    style={{
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      backgroundColor: healthData?.database?.status === 'connected' ? '#10B981' : '#EF4444',
-                      boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.2)'
-                    }}
-                  />
-                  <h3 className="h6 fw-bold mb-0 text-uppercase" style={{ letterSpacing: '0.04em' }}>
-                    Live Backend & Cloud Infrastructure Status
+          <div className="col-lg-10">
+            <div
+              className="p-4 p-md-5 rounded-4 shadow-sm text-dark position-relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%)',
+                border: '1px solid #E2E8F0'
+              }}
+            >
+              <div className="row align-items-center g-4">
+                <div className="col-lg-8">
+                  <div className="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill mb-3 border bg-white text-primary" style={{ fontSize: '0.75rem' }}>
+                    <Icon name="sparkles" size={13} color="#4F46E5" />
+                    <span className="fw-semibold">Unified Human Resources Platform</span>
+                  </div>
+                  <h3 className="h4 fw-bold text-dark mb-2" style={{ letterSpacing: '-0.02em' }}>
+                    Streamline Your Workforce Governance
                   </h3>
+                  <p className="text-muted small mb-3 mb-lg-0" style={{ lineHeight: 1.6 }}>
+                    StaffSync delivers role-specific portals tailored for HR Executives, Department Managers, and Staff Members. Monitor real-time headcount, track daily shift punctuality, manage multi-tiered leave approval workflows, and govern organizational departments seamlessly.
+                  </p>
                 </div>
-                <span className={`badge ${healthData ? 'bg-success' : 'bg-warning text-dark'} px-2.5 py-1 font-monospace`}>
-                  {healthLoading ? 'Checking...' : healthData ? 'MongoDB Atlas Connected' : 'Checking Connection'}
-                </span>
+                <div className="col-lg-4 text-lg-end">
+                  <Link to="/login" className="btn btn-accent btn-md px-4 shadow-sm d-inline-flex align-items-center gap-2">
+                    <span>Sign In to Portal</span>
+                    <Icon name="arrow-right" size={16} />
+                  </Link>
+                </div>
               </div>
 
-              <div className="p-3 bg-light rounded-3 border">
-                <div className="row g-3 small">
-                  <div className="col-6 col-md-3">
-                    <span className="text-muted d-block">Environment</span>
-                    <strong className="text-dark font-monospace">{healthData?.environment || 'development'}</strong>
+              <div className="row g-3 pt-4 mt-2 border-top">
+                <div className="col-6 col-md-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <Icon name="users" size={18} color="#4F46E5" />
+                    <div>
+                      <span className="fw-bold text-dark d-block small">Directory</span>
+                      <span className="text-muted" style={{ fontSize: '0.75rem' }}>Full Lifecycle</span>
+                    </div>
                   </div>
-                  <div className="col-6 col-md-3">
-                    <span className="text-muted d-block">Database Engine</span>
-                    <strong className="text-dark">MongoDB Atlas Cloud</strong>
+                </div>
+                <div className="col-6 col-md-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <Icon name="clock" size={18} color="#059669" />
+                    <div>
+                      <span className="fw-bold text-dark d-block small">Attendance</span>
+                      <span className="text-muted" style={{ fontSize: '0.75rem' }}>Live Shifts & Logs</span>
+                    </div>
                   </div>
-                  <div className="col-6 col-md-3">
-                    <span className="text-muted d-block">System Version</span>
-                    <strong className="text-dark font-monospace">v{healthData?.version || '1.0.0'}</strong>
+                </div>
+                <div className="col-6 col-md-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <Icon name="calendar" size={18} color="#D97706" />
+                    <div>
+                      <span className="fw-bold text-dark d-block small">Leave Center</span>
+                      <span className="text-muted" style={{ fontSize: '0.75rem' }}>Multi-Tier Review</span>
+                    </div>
                   </div>
-                  <div className="col-6 col-md-3">
-                    <span className="text-muted d-block">Server Uptime</span>
-                    <strong className="text-dark font-monospace">{healthData?.uptimeSeconds || 0} seconds</strong>
+                </div>
+                <div className="col-6 col-md-3">
+                  <div className="d-flex align-items-center gap-2">
+                    <Icon name="shield" size={18} color="#7C3AED" />
+                    <div>
+                      <span className="fw-bold text-dark d-block small">Role Security</span>
+                      <span className="text-muted" style={{ fontSize: '0.75rem' }}>Strict RBAC</span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -44,7 +44,7 @@ export const LoginPage = () => {
         rawMsg.includes('MongoServerSelectionError') ||
         err.statusCode === 503
       ) {
-        setErrorMessage('Database Connection Alert: MongoDB Atlas rejected the TLS handshake (SSL alert 80). Please ensure your current public IP is whitelisted under Network Access in MongoDB Atlas (or allow 0.0.0.0/0).');
+        setErrorMessage('Service Temporarily Unavailable: Unable to establish a secure connection to the authentication service. Please try again or contact your system administrator.');
       } else {
         setErrorMessage(rawMsg || 'Authentication failed. Please verify your credentials.');
       }
@@ -99,7 +99,7 @@ export const LoginPage = () => {
             Demo Account Credentials
           </span>
           <span className="badge bg-indigo-50 text-indigo-700 border border-indigo-200" style={{ fontSize: '0.625rem', backgroundColor: '#EEF2FF', color: '#4F46E5' }}>
-            Atlas Live Auth
+            Verified Credentials
           </span>
         </div>
         <div className="d-flex gap-2">
@@ -183,7 +183,7 @@ export const LoginPage = () => {
           {isSubmitting ? (
             <>
               <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-              <span>Verifying with Atlas...</span>
+              <span>Signing in...</span>
             </>
           ) : (
             <>
@@ -196,7 +196,7 @@ export const LoginPage = () => {
 
       <div className="text-center mt-4 pt-3 border-top text-muted small">
         <Icon name="lock" size={13} className="me-1 text-muted" />
-        <span>HTTP-Only Secure Cookie Session • Role-Based RBAC</span>
+        <span>Protected by Enterprise Security & Role-Based Access Control</span>
       </div>
     </div>
   );

@@ -15,9 +15,9 @@ export const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
 
   useEffect(() => {
     let isMounted = true;
-    healthService.checkHealth()
+    healthService.checkReadiness()
       .then((data) => {
-        if (isMounted) setApiStatus(data.status === 'healthy' ? 'online' : 'error');
+        if (isMounted) setApiStatus(data.status === 'ready' ? 'online' : 'error');
       })
       .catch(() => {
         if (isMounted) setApiStatus('offline');
@@ -137,7 +137,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
               </kbd>
             </button>
 
-            {/* Live Database status pill */}
+            {/* Live System Operational Status pill */}
             <div
               className="d-inline-flex align-items-center gap-2 px-2.5 py-1 rounded-pill border"
               style={{
@@ -146,7 +146,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                 fontSize: '0.75rem',
                 color: apiStatus === 'online' ? '#065F46' : '#991B1B'
               }}
-              title="MongoDB Atlas and Express API live connection status"
+              title="System operational status"
             >
               <span
                 style={{
@@ -158,7 +158,7 @@ export const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                 }}
               />
               <span className="fw-medium">
-                {apiStatus === 'online' ? 'MongoDB Atlas Live' : apiStatus === 'checking' ? 'Connecting...' : 'API Offline'}
+                {apiStatus === 'online' ? 'System Active' : apiStatus === 'checking' ? 'Connecting...' : 'Offline'}
               </span>
             </div>
 

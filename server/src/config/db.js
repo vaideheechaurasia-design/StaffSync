@@ -49,23 +49,21 @@ export function getConnectionStatus() {
   if (readyState === 1) {
     return {
       status: 'connected',
-      host: mongoose.connection.host || 'unknown',
-      name: mongoose.connection.name || 'unknown',
-      message: 'MongoDB Atlas connection is established and healthy.'
+      message: 'Database connection is established and healthy.'
     };
   }
 
   if (readyState === 2) {
     return {
       status: 'connecting',
-      message: 'Establishing connection to MongoDB Atlas...'
+      message: 'Establishing database connection...'
     };
   }
 
   if (readyState === 3) {
     return {
       status: 'disconnecting',
-      message: 'Disconnecting from MongoDB Atlas...'
+      message: 'Disconnecting from database...'
     };
   }
 

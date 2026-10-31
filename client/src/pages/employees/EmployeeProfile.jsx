@@ -224,7 +224,7 @@ export const EmployeeProfile = () => {
       {saveSuccess && (
         <div className="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
           <Icon name="check-circle" size={18} />
-          <div>Employee profile successfully updated in MongoDB Atlas.</div>
+          <div>Employee profile successfully updated.</div>
           <button type="button" className="btn-close ms-auto" onClick={() => setSaveSuccess(false)} aria-label="Close" />
         </div>
       )}

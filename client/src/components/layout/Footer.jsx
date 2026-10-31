@@ -7,10 +7,9 @@ export const Footer = () => {
         <div className="d-flex align-items-center gap-2">
           <span className="fw-semibold text-dark">StaffSync</span>
           <span>• Modern Human Resource Management System</span>
-          <span className="badge bg-light text-secondary border font-monospace">v1.0.0</span>
         </div>
         <div className="text-muted">
-          <span>Enterprise MERN Capstone • Cloud Edition</span>
+          <span>Enterprise Workforce Platform • All rights reserved</span>
         </div>
       </div>
     </footer>

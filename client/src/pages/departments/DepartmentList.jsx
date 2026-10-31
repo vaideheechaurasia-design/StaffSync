@@ -70,7 +70,7 @@ export const DepartmentList = () => {
         code: formData.code.trim().toUpperCase(),
         description: formData.description.trim()
       });
-      setSuccessMsg(`Department "${formData.name.trim()}" created successfully in MongoDB Atlas.`);
+      setSuccessMsg(`Department "${formData.name.trim()}" created successfully.`);
       setShowModal(false);
       setFormData({ name: '', code: '', description: '' });
       await loadData();
@@ -166,7 +166,7 @@ export const DepartmentList = () => {
 
       {isLoading ? (
         <div className="ss-card p-5 text-center my-4">
-          <LoadingSpinner label="Fetching organizational units from Atlas..." size="md" />
+          <LoadingSpinner label="Loading departments..." size="md" />
         </div>
       ) : filteredDepartments.length === 0 ? (
         <div className="ss-card p-5 my-4">
@@ -176,7 +176,7 @@ export const DepartmentList = () => {
             description={
               searchTerm
                 ? `No departments matched your query "${searchTerm}".`
-                : 'No organizational units have been registered in the database yet.'
+                : 'No organizational units have been registered yet.'
             }
           />
         </div>

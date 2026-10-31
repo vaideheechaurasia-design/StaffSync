@@ -67,9 +67,9 @@ export const TrainingCatalog = () => {
       />
 
       <PlaceholderNotice
-        featureName="Training Catalog & Seat Capacity Engine"
-        targetPhase="Phase 10 (Announcements & Training Management)"
-        description="Displays approved training cards, seat counters, and enrollment states. Automatic capacity decrement and registration persistence connect in Phase 10."
+        featureName="Training Catalog & Skill Development"
+        badgeText="Preview"
+        description="Browse professional training workshops, track participant capacities, and register for skill-building courses."
       />
 
       <div className="row g-4">

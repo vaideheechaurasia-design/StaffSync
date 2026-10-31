@@ -1,38 +1,55 @@
 import { Router } from 'express';
-import { config } from '../config/env.js';
 import { getConnectionStatus } from '../config/db.js';
 
 const router = Router();
 
+/**
+ * Liveness probe: returns HTTP 200 when the Express server process is running.
+ */
 export const getHealthStatus = (req, res) => {
-  const dbStatus = getConnectionStatus();
-  const isDbConnected = dbStatus.status === 'connected';
-
   res.status(200).json({
     success: true,
     statusCode: 200,
-    status: isDbConnected ? 'healthy' : 'degraded',
-    message: isDbConnected
-      ? 'StaffSync HRMS API and Database are operational.'
-      : 'StaffSync HRMS API is operational (database disconnected).',
-    data: {
-      uptimeSeconds: Math.floor(process.uptime()),
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      version: '1.0.0',
-      database: dbStatus,
-      services: {
-        database: isDbConnected ? 'Phase 5 (Connected)' : 'Phase 5 (Disconnected)',
-        authentication: 'Phase 6 (JWT + HTTP-only cookies)',
-        employeeManagement: 'Phase 7',
-        attendanceEngine: 'Phase 8',
-        leaveWorkflows: 'Phase 9'
-      }
-    }
+    status: 'healthy',
+    message: 'StaffSync service is operational.',
+    timestamp: new Date().toISOString()
   });
 };
 
+/**
+ * Readiness probe: checks actual database connectivity.
+ * - HTTP 200 when MongoDB is connected and ready.
+ * - HTTP 503 when MongoDB is disconnected or connecting.
+ */
+export const getReadinessStatus = (req, res) => {
+  const dbStatus = getConnectionStatus();
+  const isDbConnected = dbStatus.status === 'connected';
+
+  if (isDbConnected) {
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      status: 'ready',
+      message: 'StaffSync database is connected and ready.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  return res.status(503).json({
+    success: false,
+    statusCode: 503,
+    status: 'not_ready',
+    message: 'StaffSync database is disconnected.',
+    timestamp: new Date().toISOString()
+  });
+};
+
+// Liveness routes
 router.get('/', getHealthStatus);
 router.get('/health', getHealthStatus);
+
+// Readiness routes
+router.get('/ready', getReadinessStatus);
+router.get('/readiness', getReadinessStatus);
 
 export default router;

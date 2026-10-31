@@ -50,7 +50,7 @@ export const AuthLayout = () => {
       <footer className="text-center py-3 text-white-50 small">
         <div className="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
           <span>© 2026 StaffSync Technologies Inc. All rights reserved.</span>
-          <span>BTech Capstone Project • ServiceNow University</span>
+          <span>Enterprise Workforce Management Portal</span>
         </div>
       </footer>
     </div>

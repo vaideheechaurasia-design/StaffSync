@@ -145,7 +145,7 @@ export const HRReports = () => {
         title="Advanced HR Analytics & Reports"
         subtitle="Live organizational metrics, department distribution, attendance compliance, and data exports."
         breadcrumbs={[{ label: 'HR Reports', path: '/reports' }]}
-        badge="MongoDB Atlas Analytics"
+        badge="Executive Analytics"
         actionButton={
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <button
@@ -181,7 +181,7 @@ export const HRReports = () => {
 
       {isLoading ? (
         <div className="ss-card p-5 text-center my-4">
-          <LoadingSpinner label="Compiling organizational analytics from Atlas..." size="md" />
+          <LoadingSpinner label="Loading organizational reports..." size="md" />
         </div>
       ) : (
         <>

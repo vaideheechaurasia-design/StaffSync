@@ -192,7 +192,7 @@ export const NotificationsCenter = () => {
             </span>
           </div>
           <span className="small text-muted">
-            Aggregated from live MongoDB Atlas records
+            Real-time organizational activity feed
           </span>
         </div>
 

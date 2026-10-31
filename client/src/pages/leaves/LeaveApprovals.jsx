@@ -162,7 +162,7 @@ export const LeaveApprovals = () => {
 
         {isLoading ? (
           <div className="p-5 text-center">
-            <LoadingSpinner label="Querying pending leave applications from Atlas..." size="md" />
+            <LoadingSpinner label="Loading pending leave applications..." size="md" />
           </div>
         ) : pendingList.length === 0 ? (
           <div className="p-5 text-center text-muted">
